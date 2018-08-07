@@ -1,0 +1,44 @@
+{
+  "author": "mubaidr@gmail.com",
+  "bugs": {
+    "url": "https://github.com/mubaidr/pico-game-template/issues"
+  },
+  "description": "A minimal template to create HTML5 game using Canvas and JavaScript.",
+  "devDependencies": {
+    "babel-preset-env": "^1.7.0",
+    "eslint": "^5.2.0",
+    "eslint-config-airbnb": "^17.0.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-jsx-a11y": "^6.1.1",
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-promise": "^3.8.0",
+    "eslint-plugin-react": "^7.10.0",
+    "eslint-plugin-standard": "^3.1.0",
+    "parcel-bundler": "^1.9.7"
+  },
+  "files": [
+    "src"
+  ],
+  "homepage": "https://github.com/mubaidr/pico-game-template#readme",
+  "keywords": [
+    "html5",
+    "canvas",
+    "game",
+    "javascript",
+    "pico"
+  ],
+  "license": "MIT",
+  "main": "src/index.html",
+  "name": "pico-game-template",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mubaidr/pico-game-template.git"
+  },
+  "scripts": {
+    "build": "parcel build src/index.html --out-dir dist",
+    "dev": "parcel src/index.html --open",
+    "lint": "eslint --fix src/"
+  },
+  "version": "0.0.1"
+}
