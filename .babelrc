@@ -1,12 +1,32 @@
 {
-  "presets": [
-    [
-      "env",
-      {
-        "targets": {
-          "browsers": ["last 1 versions"]
-        }
-      }
-    ]
-  ]
+  "env": {
+    "production": {
+      "presets": [
+        [
+          "env",
+          {
+            "targets": {
+              "chrome": "64",
+              "firefox": "61"
+            },
+            "modules": false
+          }
+        ],
+        ["minify"]
+      ]
+    },
+    "docs": {
+      "presets": [
+        [
+          "env",
+          {
+            "targets": {
+              "browsers": ["last 2 versions"]
+            }
+          }
+        ],
+        ["minify"]
+      ]
+    }
+  }
 }

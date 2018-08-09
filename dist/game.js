@@ -1,0 +1,1 @@
+import utilities from'./utilities.js';export default class Game{constructor(a){this.isLoaded=!1,this.width=a.width,this.height=a.height,this.loadAssets(a.assets).then(a=>{this.assets=a,this.isLoaded=!0}),this.initialize(document.querySelector(a.container)),this.store=new utilities.Store}initialize(){}redraw(){}async loadAssets(){}reset(){}start(){}pause(){}}
