@@ -1,0 +1,18 @@
+{
+  "configurations": [
+    {
+      "breakOnLoad": true,
+      "cwd": "${workspaceRoot}",
+      "name": "Debug",
+      "request": "launch",
+      "sourceMapPathOverrides": {
+        "*": "${workspaceRoot}/src/*"
+      },
+      "sourceMaps": true,
+      "type": "chrome",
+      "url": "http://localhost:5500",
+      "webRoot": "${workspaceFolder}/src"
+    }
+  ],
+  "version": "0.2.0"
+}
