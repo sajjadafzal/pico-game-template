@@ -15,6 +15,13 @@ export default class Game {
       assets: {},
       gameObjects: [
         new GameObject({
+          type: 'line',
+          x: 0,
+          y: 0,
+          x2: 75,
+          y2: 75,
+        }),
+        new GameObject({
           type: 'arc',
           x: 50,
           y: 50,
@@ -22,10 +29,10 @@ export default class Game {
         }),
         new GameObject({
           type: 'rect',
-          x: 150,
-          y: 150,
-          width: 100,
-          height: 100,
+          x: 75,
+          y: 75,
+          width: 50,
+          height: 50,
         }),
       ],
     }
