@@ -1,9 +1,9 @@
 import Game from './game.js'
 
 const myGame = new Game({
-  container: '#my-game',
-  width: 640,
-  height: 480,
+  container: document.querySelector('#my-game'),
+  width: 340,
+  height: 280,
   assets: [],
 })
 
