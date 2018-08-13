@@ -7,6 +7,7 @@ export default class GameObject {
    * @param {String} options options
    */
   constructor(options) {
+    // TODO: directly receive options here
     this.antiClockwise = options.antiClockwise || false
     this.endAngle = options.endAngle || Math.PI * 2
     this.fill = options.fill
@@ -67,11 +68,39 @@ export default class GameObject {
    * @returns Boolean
    */
   isOnScreen() {
+    let left = this.x
+    let top = this.y
+    let right = this.x
+    let bottom = this.y
+
+    switch (this.type) {
+      case 'line':
+        right = this.x2
+        bottom = this.y2
+        break
+      case 'arc':
+        left -= this.radius
+        top -= this.radius
+        right += this.radius * 2
+        bottom += this.radius * 2
+        break
+      case 'rect':
+        right += this.width
+        bottom += this.height
+        break
+      case 'img':
+      case 'image':
+      default:
+        right += this.width
+        bottom += this.height
+        break
+    }
+
     if (
-      this.x >= 0 &&
-      this.y >= 0 &&
-      this.x <= GameObject.SCREEN_WIDTH &&
-      this.y <= GameObject.SCREEN_HEIGHT
+      right >= 0 &&
+      bottom >= 0 &&
+      left <= GameObject.SCREEN_WIDTH &&
+      top <= GameObject.SCREEN_HEIGHT
     )
       return true
 

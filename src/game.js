@@ -1,11 +1,9 @@
-import GameObject from './gameObject.js'
+import GO from './gameObject.js' // GameObject class
 
-// in game screens
-export const SCREENS = {
-  main: 0, // main menu
-  game: 1, // game loop
-  end: 2, // end screen
-}
+// in game scrs
+/*
+  scr = 0: main. 1: game, 2: end
+*/
 
 /**
  * Game class
@@ -15,85 +13,76 @@ export default class Game {
    *
    * @param {String} options options
    */
-  constructor(options) {
+  constructor(con, w, h) {
     // options
-    this.width = options.width
-    this.height = options.height
-    this.container = options.container
+    this.w = w
+    this.h = h
 
     // create canvas
-    this.canvas = document.createElement('canvas')
-    this.ctx = this.canvas.getContext('2d')
+    this.can = document.createElement('canvas')
+    this.ctx = this.can.getContext('2d')
+    this.can.width = w
+    this.can.height = h
+    con.appendChild(this.can)
 
     // set static props
-    GameObject.SCREEN_WIDTH = this.width
-    GameObject.SCREEN_HEIGHT = this.height
-    GameObject.CTX = this.ctx
+    GO.S_W = this.w
+    GO.S_H = this.h
+    GO.CTX = this.ctx
 
     // initial vars
     this.store = {
-      screen: SCREENS.main,
-      assets: {},
-      gameObjects: [
-        new GameObject({
+      scr: 0,
+      objects: [
+        new GO({
           type: 'rect',
-          x: 0,
-          y: 0,
+          x: 150,
+          y: 150,
           width: 50,
           height: 50,
-          screen: SCREENS.main,
+          ctrl: true,
+          scr: 0,
         }),
-        new GameObject({
+        new GO({
           type: 'arc',
           x: 50,
           y: 50,
           radius: 50,
-          isInputAware: true,
-          screen: SCREENS.main,
+          scr: 0,
         }),
-        new GameObject({
+        new GO({
           type: 'arc',
           x: 50,
           y: 50,
           radius: 50,
-          isInputAware: true,
-          screen: SCREENS.game,
+          ctrl: true,
+          scr: 1,
         }),
-        new GameObject({
+        new GO({
           type: 'rect',
           x: 75,
           y: 75,
           width: 50,
           height: 50,
-          screen: SCREENS.game,
+          scr: 1,
+        }),
+        new GO({
+          type: 'rect',
+          x: 75,
+          y: 75,
+          width: 50,
+          height: 50,
+          scr: 2,
         }),
       ],
     }
 
-    // initialize
-    this.initialize()
-
-    // load assets
-    Game.loadAssets(options.assets).then(assets => {
-      this.store.assets = assets
-      this.start()
-    })
-  }
-
-  /**
-   * Initialize canvas & controls
-   */
-  initialize() {
-    // set canvas dimensions
-    this.canvas.width = this.width
-    this.canvas.height = this.height
-
-    // append canvas to document
-    this.container.appendChild(this.canvas)
-
     // input handling
-    this.canvas.addEventListener('click', e => this.handleInput(e))
+    this.can.addEventListener('click', e => this.handleInput(e))
     document.addEventListener('keydown', e => this.handleInput(e))
+
+    // start game loop
+    this.start()
   }
 
   /**
@@ -103,10 +92,10 @@ export default class Game {
   handleInput(e) {
     e.preventDefault()
 
-    this.store.gameObjects
-      .filter(obj => obj.screen === this.store.screen && obj.isInputAware)
-      .forEach(obj => {
-        obj.handleInput(e)
+    this.store.objects
+      .filter(o => o.scr === this.store.scr && o.ctrl)
+      .forEach(o => {
+        o.handleInput(e)
       })
 
     return false
@@ -143,11 +132,16 @@ export default class Game {
    */
   updateState() {
     // test code
-    this.store.gameObjects
-      .filter(obj => obj.screen === this.store.screen && !obj.isInputAware)
-      .forEach(obj => {
-        obj.x += 1
-        obj.y += 1
+    this.store.objects
+      .filter(o => o.scr === this.store.scr && !o.ctrl)
+      .forEach(o => {
+        o.x += 2
+        o.y += 2
+
+        if (!o.isOnScreen()) {
+          o.x = -50
+          o.y = -50
+        }
       })
   }
 
@@ -155,46 +149,19 @@ export default class Game {
    * clear canvas
    */
   clear() {
-    this.ctx.clearRect(0, 0, this.width, this.height)
+    this.ctx.clearRect(0, 0, this.w, this.h)
   }
 
   /**
    * draw all game objects in current frame
    */
   draw() {
-    this.store.gameObjects
-      .filter(obj => obj.screen === this.store.screen)
-      .forEach(obj => {
-        if (obj.isOnScreen()) {
-          obj.draw()
-        } else {
-          // discard offscreen object if not required
-        }
-      })
-  }
-
-  /**
-   *
-   * @param {Array<Object>} objects GameObjects to add to the game
-   */
-  addGameObjects(objects) {
-    objects.forEach(o => {
-      this.store.gameObjects.push(o)
+    this.store.objects.filter(o => o.scr === this.store.scr).forEach(o => {
+      if (o.isOnScreen()) {
+        o.draw()
+      } else {
+        // discard offscr object if not required
+      }
     })
   }
-}
-
-/**
- *
- * @param {Array<Object>} assets array of assets
- * @returns {Array} collection
- */
-Game.loadAssets = async assets => {
-  const collection = {}
-
-  assets.forEach(asset => {
-    console.log(asset)
-  })
-
-  return collection
 }
