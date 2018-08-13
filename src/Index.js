@@ -1,10 +1,12 @@
 import Game from './game.js'
 
-const myGame = new Game({
+// game screen size
+const [WIDTH, HEIGHT] = [340, 280]
+
+// initilize  new game
+new Game({
   container: document.querySelector('#my-game'),
-  width: 340,
-  height: 280,
+  width: WIDTH,
+  height: HEIGHT,
   assets: [],
 })
-
-console.log(myGame)
