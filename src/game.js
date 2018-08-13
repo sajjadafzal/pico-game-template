@@ -11,19 +11,21 @@ import GO from './gameObject.js' // GameObject class
 export default class Game {
   /**
    *
-   * @param {String} options options
+   * @param {HTMLElement} container Container for game canvas
+   * @param {Number} width widht of game canvas
+   * @param {Number} height height of game canvas
    */
-  constructor(con, w, h) {
+  constructor(container, width, height) {
     // options
-    this.w = w
-    this.h = h
+    this.w = width
+    this.h = height
 
     // create canvas
-    this.can = document.createElement('canvas')
-    this.ctx = this.can.getContext('2d')
-    this.can.width = w
-    this.can.height = h
-    con.appendChild(this.can)
+    this.canvas = document.createElement('canvas')
+    this.ctx = this.canvas.getContext('2d')
+    this.canvas.width = width
+    this.canvas.height = height
+    container.appendChild(this.canvas)
 
     // set static props
     GO.S_W = this.w
@@ -38,23 +40,23 @@ export default class Game {
           type: 'rect',
           x: 150,
           y: 150,
-          width: 50,
-          height: 50,
+          w: 50,
+          h: 50,
           ctrl: true,
           scr: 0,
         }),
         new GO({
-          type: 'arc',
+          type: 'circle',
           x: 50,
           y: 50,
-          radius: 50,
+          rad: 50,
           scr: 0,
         }),
         new GO({
-          type: 'arc',
+          type: 'circle',
           x: 50,
           y: 50,
-          radius: 50,
+          rad: 50,
           ctrl: true,
           scr: 1,
         }),
@@ -62,23 +64,23 @@ export default class Game {
           type: 'rect',
           x: 75,
           y: 75,
-          width: 50,
-          height: 50,
+          w: 50,
+          h: 50,
           scr: 1,
         }),
         new GO({
           type: 'rect',
           x: 75,
           y: 75,
-          width: 50,
-          height: 50,
-          scr: 2,
+          w: 50,
+          h: 50,
+          scr: 1,
         }),
       ],
     }
 
     // input handling
-    this.can.addEventListener('click', e => this.handleInput(e))
+    this.canvas.addEventListener('click', e => this.handleInput(e))
     document.addEventListener('keydown', e => this.handleInput(e))
 
     // start game loop
@@ -134,14 +136,8 @@ export default class Game {
     // test code
     this.store.objects
       .filter(o => o.scr === this.store.scr && !o.ctrl)
-      .forEach(o => {
-        o.x += 2
-        o.y += 2
-
-        if (!o.isOnScreen()) {
-          o.x = -50
-          o.y = -50
-        }
+      .forEach(() => {
+        // update state where required
       })
   }
 
@@ -157,10 +153,10 @@ export default class Game {
    */
   draw() {
     this.store.objects.filter(o => o.scr === this.store.scr).forEach(o => {
-      if (o.isOnScreen()) {
+      if (o.isOnscreen()) {
         o.draw()
       } else {
-        // discard offscr object if not required
+        // discard offscreen object if not required
       }
     })
   }

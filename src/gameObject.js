@@ -7,18 +7,14 @@ export default class GameObject {
    * @param {String} options options
    */
   constructor(options) {
-    // TODO: directly receive options here
-    this.antiClockwise = options.antiClockwise || false
-    this.endAngle = options.endAngle || Math.PI * 2
+    this.ctrl = options.ctrl
     this.fill = options.fill
-    this.height = options.height
-    this.isInputAware = options.isInputAware
-    this.radius = options.radius
-    this.screen = options.screen
-    this.startAngle = options.startAngle || 0
+    this.h = options.h
+    this.rad = options.rad
+    this.scr = options.scr
     this.stroke = options.stroke
     this.type = options.type
-    this.width = options.width
+    this.w = options.w
     this.x = options.x
     this.x2 = options.x2
     this.y = options.y
@@ -40,34 +36,27 @@ export default class GameObject {
         ctx.lineTo(this.x2, this.y2)
         ctx.stroke()
         break
-      case 'arc':
+      case 'circle':
         ctx.beginPath()
-        ctx.arc(
-          this.x,
-          this.y,
-          this.radius,
-          this.startAngle,
-          this.endAngle,
-          this.antiClockwise
-        )
+        ctx.arc(this.x, this.y, this.rad, 0, Math.PI * 2, 0)
         ctx.fill()
         break
       case 'rect':
-        ctx.fillRect(this.x, this.y, this.width, this.height)
+        ctx.fillRect(this.x, this.y, this.w, this.h)
         break
       case 'img':
       case 'image':
       default:
-        ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
+        ctx.drawImage(this.image, this.x, this.y, this.w, this.h)
         break
     }
   }
 
   /**
-   * Returns true if object is visible on screen
+   * Returns true if object is visible on scr
    * @returns Boolean
    */
-  isOnScreen() {
+  isOnscreen() {
     let left = this.x
     let top = this.y
     let right = this.x
@@ -78,29 +67,29 @@ export default class GameObject {
         right = this.x2
         bottom = this.y2
         break
-      case 'arc':
-        left -= this.radius
-        top -= this.radius
-        right += this.radius * 2
-        bottom += this.radius * 2
+      case 'circle':
+        left -= this.rad
+        top -= this.rad
+        right += this.rad * 2
+        bottom += this.rad * 2
         break
       case 'rect':
-        right += this.width
-        bottom += this.height
+        right += this.w
+        bottom += this.h
         break
       case 'img':
       case 'image':
       default:
-        right += this.width
-        bottom += this.height
+        right += this.w
+        bottom += this.h
         break
     }
 
     if (
-      right >= 0 &&
-      bottom >= 0 &&
-      left <= GameObject.SCREEN_WIDTH &&
-      top <= GameObject.SCREEN_HEIGHT
+      right >= 0 ||
+      bottom >= 0 ||
+      left <= GameObject.S_W ||
+      top <= GameObject.S_H
     )
       return true
 
