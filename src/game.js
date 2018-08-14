@@ -1,4 +1,5 @@
-import GO from './gameObject.js' // GameObject class
+import GameObject from './gameObject.js'
+// import { isColliding, loadAssets } from './utilities.js'
 
 // in game scrs
 /*
@@ -28,15 +29,15 @@ export default class Game {
     container.appendChild(this.canvas)
 
     // set static props
-    GO.S_W = this.w
-    GO.S_H = this.h
-    GO.CTX = this.ctx
+    GameObject.S_W = this.w
+    GameObject.S_H = this.h
+    GameObject.CTX = this.ctx
 
     // initial vars
     this.store = {
       scr: 0,
       objects: [
-        new GO({
+        new GameObject({
           type: 'rect',
           x: 150,
           y: 150,
@@ -45,14 +46,14 @@ export default class Game {
           ctrl: true,
           scr: 0,
         }),
-        new GO({
+        new GameObject({
           type: 'circle',
           x: 50,
           y: 50,
           rad: 50,
           scr: 0,
         }),
-        new GO({
+        new GameObject({
           type: 'circle',
           x: 50,
           y: 50,
@@ -60,7 +61,7 @@ export default class Game {
           ctrl: true,
           scr: 1,
         }),
-        new GO({
+        new GameObject({
           type: 'rect',
           x: 75,
           y: 75,
@@ -68,7 +69,7 @@ export default class Game {
           h: 50,
           scr: 1,
         }),
-        new GO({
+        new GameObject({
           type: 'rect',
           x: 75,
           y: 75,

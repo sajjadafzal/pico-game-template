@@ -1,10 +1,12 @@
+import { getObjectBoundary } from './utilities.js'
+
 /**
  * GameObject class
  */
 export default class GameObject {
   /**
    *
-   * @param {String} options options
+   * @param {Object} options options
    */
   constructor(options) {
     this.ctrl = options.ctrl
@@ -57,39 +59,13 @@ export default class GameObject {
    * @returns Boolean
    */
   isOnscreen() {
-    let left = this.x
-    let top = this.y
-    let right = this.x
-    let bottom = this.y
-
-    switch (this.type) {
-      case 'line':
-        right = this.x2
-        bottom = this.y2
-        break
-      case 'circle':
-        left -= this.rad
-        top -= this.rad
-        right += this.rad * 2
-        bottom += this.rad * 2
-        break
-      case 'rect':
-        right += this.w
-        bottom += this.h
-        break
-      case 'img':
-      case 'image':
-      default:
-        right += this.w
-        bottom += this.h
-        break
-    }
+    const o = getObjectBoundary(this)
 
     if (
-      right >= 0 ||
-      bottom >= 0 ||
-      left <= GameObject.S_W ||
-      top <= GameObject.S_H
+      o.right >= 0 ||
+      o.bottom >= 0 ||
+      o.left <= GameObject.S_W ||
+      o.top <= GameObject.S_H
     )
       return true
 
