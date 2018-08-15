@@ -1,6 +1,4 @@
 import GameObject from './gameObject.js'
-import { isColliding } from './utilities.js'
-// import { isColliding, loadAssets } from './utilities.js'
 
 // in game scrs
 /*
@@ -16,11 +14,13 @@ export default class Game {
    * @param {HTMLElement} container Container for game canvas
    * @param {Number} width widht of game canvas
    * @param {Number} height height of game canvas
+   * @param {Array<String>} height height of game canvas
    */
-  constructor(container, width, height) {
+  constructor(container, width, height, assets) {
     // options
     this.w = width
     this.h = height
+    this.assets = assets
 
     // create canvas
     this.canvas = document.createElement('canvas')
@@ -91,7 +91,9 @@ export default class Game {
     document.addEventListener('keydown', e => this.handleInput(e))
 
     // start game loop
-    this.start()
+    this.loadAssets().then(() => {
+      this.start()
+    })
   }
 
   /**
@@ -108,6 +110,16 @@ export default class Game {
       })
 
     return false
+  }
+
+  /**
+   *  Loads the provided list of assets and return the ready to use list
+   * @param {Array<Object>} arr Assets array to load
+   * @returns {Array<Object>} Collection of loaded results
+   */
+  async loadAssets() {
+    // TODO: implement asset loader
+    this.assets.forEach(a => {})
   }
 
   /**
@@ -147,8 +159,7 @@ export default class Game {
 
     for (let i = 0; i < gameObjects.length; i += 1) {
       for (let j = i + 1; j < gameObjects.length; j += 1) {
-        const collision = isColliding(gameObjects[i], gameObjects[j])
-        console.log(collision)
+        const collision = gameObjects[i].isColliding(gameObjects[j])
         // update object props
       }
     }

@@ -1,4 +1,4 @@
 import Game from './game.js'
 
 // initilize  new game
-new Game(document.querySelector('#game'), 340, 280)
+new Game(document.querySelector('#game'), 340, 280, [])

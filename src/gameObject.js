@@ -56,6 +56,10 @@ export default class GameObject {
     }
   }
 
+  /**
+   * Finds the bounding rect position for object
+   * @returns {Object} {left, top, right, bottom}
+   */
   getBoundary() {
     const boundary = {
       left: this.x,
@@ -101,6 +105,33 @@ export default class GameObject {
       o.top <= GameObject.S_H
     )
       return true
+
+    return false
+  }
+
+  /**
+   * Detect if two objects are on-screen and colliding
+   * @param {GameObject} ObjectOne Object
+   * @param {GameObject} ObjectTwo Object
+   * @returns {Boolean} Returns true if collision is detected
+   */
+  isColliding(object) {
+    if (!this.isSolid || !object.isSolid) return false
+
+    const o1 = this.getBoundary()
+    const o2 = object.getBoundary()
+
+    const area = []
+    for (let i = o2.left; i <= o2.right; i += 1) {
+      for (let j = o2.top; j <= o2.bottom; j += 1) {
+        area.push(i * j)
+      }
+    }
+
+    if (area.indexOf(o1.left * o1.top) > -1) return true
+    if (area.indexOf(o1.top * o1.right) > -1) return true
+    if (area.indexOf(o1.right * o1.bottom) > -1) return true
+    if (area.indexOf(o1.bottom * o1.left) > -1) return true
 
     return false
   }
