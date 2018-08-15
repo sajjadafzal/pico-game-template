@@ -1,4 +1,5 @@
 import GameObject from './gameObject.js'
+import { isColliding } from './utilities.js'
 // import { isColliding, loadAssets } from './utilities.js'
 
 // in game scrs
@@ -39,27 +40,31 @@ export default class Game {
       objects: [
         new GameObject({
           type: 'rect',
-          x: 150,
-          y: 150,
+          x: 200,
+          y: 200,
           w: 50,
           h: 50,
-          ctrl: true,
           scr: 0,
+          isSolid: true,
         }),
         new GameObject({
           type: 'circle',
-          x: 50,
-          y: 50,
+          x: 200,
+          y: 200,
           rad: 50,
           scr: 0,
+          dx: 1,
+          dy: 1,
+          acc: 0,
+          isSolid: true,
         }),
         new GameObject({
           type: 'circle',
-          x: 50,
-          y: 50,
-          rad: 50,
-          ctrl: true,
-          scr: 1,
+          x: 150,
+          y: 150,
+          rad: 25,
+          scr: 0,
+          isSolid: true,
         }),
         new GameObject({
           type: 'rect',
@@ -68,6 +73,7 @@ export default class Game {
           w: 50,
           h: 50,
           scr: 1,
+          ctrl: true,
         }),
         new GameObject({
           type: 'rect',
@@ -126,7 +132,7 @@ export default class Game {
 
     // redraw loop
     window.requestAnimationFrame(() => {
-      this.redraw()
+      // this.redraw()
     })
   }
 
@@ -135,11 +141,17 @@ export default class Game {
    */
   updateState() {
     // test code
-    this.store.objects
-      .filter(o => o.scr === this.store.scr && !o.ctrl)
-      .forEach(() => {
-        // update state where required
-      })
+    const gameObjects = this.store.objects.filter(
+      o => o.scr === this.store.scr && !o.ctrl && o.isOnScreen
+    )
+
+    for (let i = 0; i < gameObjects.length; i += 1) {
+      for (let j = i + 1; j < gameObjects.length; j += 1) {
+        const collision = isColliding(gameObjects[i], gameObjects[j])
+        console.log(collision)
+        // update object props
+      }
+    }
   }
 
   /**
@@ -154,7 +166,7 @@ export default class Game {
    */
   draw() {
     this.store.objects.filter(o => o.scr === this.store.scr).forEach(o => {
-      if (o.isOnscreen()) {
+      if (o.isOnScreen()) {
         o.draw()
       } else {
         // discard offscreen object if not required

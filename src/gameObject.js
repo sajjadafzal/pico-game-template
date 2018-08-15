@@ -1,5 +1,3 @@
-import { getObjectBoundary } from './utilities.js'
-
 /**
  * GameObject class
  */
@@ -9,9 +7,13 @@ export default class GameObject {
    * @param {Object} options options
    */
   constructor(options) {
+    this.acc = options.acc || 0
     this.ctrl = options.ctrl
+    this.dx = options.dx || 0
+    this.dy = options.dy || 0
     this.fill = options.fill
     this.h = options.h
+    this.isSolid = options.isSolid
     this.rad = options.rad
     this.scr = options.scr
     this.stroke = options.stroke
@@ -54,12 +56,43 @@ export default class GameObject {
     }
   }
 
+  getBoundary() {
+    const boundary = {
+      left: this.x,
+      top: this.y,
+      right: this.x,
+      bottom: this.y,
+    }
+
+    switch (this.type) {
+      case 'line':
+        boundary.right = this.x2
+        boundary.bottom = this.y2
+        break
+      case 'circle':
+        boundary.left -= this.rad
+        boundary.top -= this.rad
+        boundary.right += this.rad
+        boundary.bottom += this.rad
+        break
+      case 'rect':
+      case 'img':
+      case 'image':
+      default:
+        boundary.right += this.w
+        boundary.bottom += this.h
+        break
+    }
+
+    return boundary
+  }
+
   /**
-   * Returns true if object is visible on scr
+   * Returns true if object is visible on screen
    * @returns Boolean
    */
-  isOnscreen() {
-    const o = getObjectBoundary(this)
+  isOnScreen() {
+    const o = this.getBoundary()
 
     if (
       o.right >= 0 ||

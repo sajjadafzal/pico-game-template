@@ -1,45 +1,4 @@
-/* eslint-disable*/
-// import GameObject from './gameObject.js'
-/* eslint-enable */
-
-/**
- * Finds the bounding rect position for provided object
- * @param {GameObject} o Game object
- * @returns {Object} {left, top, right, bottom}
- */
-export function getObjectBoundary(o) {
-  const boundary = {
-    left: o.x,
-    top: o.y,
-    right: o.x,
-    bottom: o.y,
-  }
-
-  switch (o.type) {
-    case 'line':
-      boundary.right = o.x2
-      boundary.bottom = o.y2
-      break
-    case 'circle':
-      boundary.left -= o.rad
-      boundary.top -= o.rad
-      boundary.right += o.rad * 2
-      boundary.bottom += o.rad * 2
-      break
-    case 'rect':
-      boundary.right += o.w
-      boundary.bottom += o.h
-      break
-    case 'img':
-    case 'image':
-    default:
-      boundary.right += o.w
-      boundary.bottom += o.h
-      break
-  }
-
-  return boundary
-}
+import GameObject from './gameObject.js' //eslint-disable-line
 
 /**
  * Detect if two objects are on-screen and colliding
@@ -48,28 +7,24 @@ export function getObjectBoundary(o) {
  * @returns {Boolean} Returns true if collision is detected
  */
 export function isColliding(ObjectOne, ObjectTwo) {
-  if (!ObjectOne.isOnScreen() || !ObjectTwo.isOnScreen()) return 0
+  if (!ObjectOne.isSolid || !ObjectTwo.isSolid) return false
 
-  const o1 = getObjectBoundary(ObjectOne)
-  const o2 = getObjectBoundary(ObjectTwo)
+  const o1 = ObjectOne.getBoundary()
+  const o2 = ObjectTwo.getBoundary()
 
-  if (
-    o1.left >= o2.left &&
-    o1.left <= o2.right &&
-    o1.top >= o2.top &&
-    o1.top <= o2.bottom
-  )
-    return 1
+  const area = []
+  for (let i = o2.left; i <= o2.right; i += 1) {
+    for (let j = o2.top; j <= o2.bottom; j += 1) {
+      area.push(i * j)
+    }
+  }
 
-  if (
-    o2.left >= o1.left &&
-    o2.left <= o1.right &&
-    o2.top >= o1.top &&
-    o2.top <= o1.bottom
-  )
-    return 1
+  if (area.indexOf(o1.left * o1.top) > -1) return true
+  if (area.indexOf(o1.top * o1.right) > -1) return true
+  if (area.indexOf(o1.right * o1.bottom) > -1) return true
+  if (area.indexOf(o1.bottom * o1.left) > -1) return true
 
-  return 0
+  return false
 }
 
 /**
@@ -81,9 +36,7 @@ export function loadAssets(arr) {
   const collection = []
 
   // TODO: implement asset loader
-  arr.forEach(a => {
-    console.log(a)
-  })
+  arr.forEach(a => {})
 
   return collection
 }
