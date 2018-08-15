@@ -90,8 +90,11 @@ export default class Game {
     this.canvas.addEventListener('click', e => this.handleInput(e))
     document.addEventListener('keydown', e => this.handleInput(e))
 
-    // start game loop
-    this.loadAssets().then(() => {
+    // load all assets
+    this.loadAssets().then(assets => {
+      this.assets = assets
+
+      // start game loop
       this.start()
     })
   }
@@ -118,8 +121,37 @@ export default class Game {
    * @returns {Array<Object>} Collection of loaded results
    */
   async loadAssets() {
-    // TODO: implement asset loader
-    this.assets.forEach(a => {})
+    const promises = []
+
+    this.assets.forEach(a => {
+      promises.push(
+        new Promise((resolve, reject) => {
+          const ext = a.url.split('.').slice(-1)[0]
+          if (ext === 'jpg') {
+            // load image
+            const img = new Image()
+            img.onload = () => {
+              resolve({ name: a.name, media: img })
+            }
+            img.onerror = () => {
+              reject()
+            }
+            img.src = a.url
+          } else {
+            // load sound
+            const audio = new Audio(a.url)
+            audio.oncanplay = () => {
+              resolve({ name: a.name, media: audio })
+            }
+            audio.onerror = () => {
+              reject()
+            }
+          }
+        })
+      )
+    })
+
+    return Promise.all(promises)
   }
 
   /**
