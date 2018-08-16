@@ -14,7 +14,9 @@ export default class Game {
    * @param {HTMLElement} container Container for game canvas
    * @param {Number} width widht of game canvas
    * @param {Number} height height of game canvas
-   * @param {Array<String>} height height of game canvas
+   * @param {String[]} assets assets urls to load {name, url}
+   * @param {String} assets.name name of asset
+   * @param {String} assets.url url of asset
    */
   constructor(container, width, height, assets) {
     // options
@@ -131,20 +133,26 @@ export default class Game {
             // load image
             const img = new Image()
             img.onload = () => {
-              resolve({ name: a.name, media: img })
+              resolve({
+                name: a.name,
+                media: img,
+              })
             }
-            img.onerror = () => {
-              reject()
+            img.onerror = err => {
+              reject(err)
             }
             img.src = a.url
           } else {
             // load sound
             const audio = new Audio(a.url)
             audio.oncanplay = () => {
-              resolve({ name: a.name, media: audio })
+              resolve({
+                name: a.name,
+                media: audio,
+              })
             }
-            audio.onerror = () => {
-              reject()
+            audio.onerror = err => {
+              reject(err)
             }
           }
         })
@@ -176,7 +184,7 @@ export default class Game {
 
     // redraw loop
     window.requestAnimationFrame(() => {
-      // this.redraw()
+      this.redraw()
     })
   }
 
