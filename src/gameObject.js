@@ -60,35 +60,35 @@ export default class GameObject {
    * Finds the bounding rect position for object
    * @returns {Object} {left, top, right, bottom}
    */
-  getBoundary() {
-    const boundary = {
-      left: this.x,
-      top: this.y,
-      right: this.x,
-      bottom: this.y,
+  getBoundingRect() {
+    const rect = {
+      x: this.x,
+      y: this.y,
+      x2: this.x,
+      y2: this.y,
     }
 
     switch (this.type) {
       case 'line':
-        boundary.right = this.x2
-        boundary.bottom = this.y2
+        rect.x2 = this.x2
+        rect.y2 = this.y2
         break
       case 'circle':
-        boundary.left -= this.rad
-        boundary.top -= this.rad
-        boundary.right += this.rad
-        boundary.bottom += this.rad
+        rect.x -= this.rad
+        rect.y -= this.rad
+        rect.x2 += this.rad
+        rect.y2 += this.rad
         break
       case 'rect':
       case 'img':
       case 'image':
       default:
-        boundary.right += this.w
-        boundary.bottom += this.h
+        rect.x2 += this.w
+        rect.y2 += this.h
         break
     }
 
-    return boundary
+    return rect
   }
 
   /**
@@ -96,14 +96,9 @@ export default class GameObject {
    * @returns Boolean
    */
   isOnScreen() {
-    const o = this.getBoundary()
+    const o = this.getBoundingRect()
 
-    if (
-      o.right >= 0 ||
-      o.bottom >= 0 ||
-      o.left <= GameObject.S_W ||
-      o.top <= GameObject.S_H
-    )
+    if (o.x * o.y >= 0 && o.x2 * o.y2 <= GameObject.S_W * GameObject.S_H)
       return true
 
     return false
@@ -117,21 +112,42 @@ export default class GameObject {
    */
   isColliding(object) {
     if (!this.isSolid || !object.isSolid) return false
+    if (!this.isOnScreen() || !object.isOnScreen()) return false
 
-    const o1 = this.getBoundary()
-    const o2 = object.getBoundary()
+    const ObjectOne = this.getBoundingRect()
+    const ObjectTwo = object.getBoundingRect()
 
-    const area = []
-    for (let i = o2.left; i <= o2.right; i += 1) {
-      for (let j = o2.top; j <= o2.bottom; j += 1) {
-        area.push(i * j)
-      }
-    }
+    const ObjectTwoTopLeft = ObjectTwo.x * ObjectTwo.y
+    const ObjectTwoBottomRight = ObjectTwo.x2 * ObjectTwo.y2
 
-    if (area.indexOf(o1.left * o1.top) > -1) return true
-    if (area.indexOf(o1.top * o1.right) > -1) return true
-    if (area.indexOf(o1.right * o1.bottom) > -1) return true
-    if (area.indexOf(o1.bottom * o1.left) > -1) return true
+    const ObjectOneTopLeft = ObjectOne.x * ObjectOne.y
+    const ObjectOneTopRight = ObjectOne.x2 * ObjectOne.y
+    const ObjectOneBottomRight = ObjectOne.x2 * ObjectOne.y2
+    const ObjectOneBottomLeft = ObjectOne.x * ObjectOne.y2
+
+    if (
+      ObjectOneTopLeft >= ObjectTwoTopLeft &&
+      ObjectOneTopLeft <= ObjectTwoBottomRight
+    )
+      return true
+
+    if (
+      ObjectOneTopRight >= ObjectTwoTopLeft &&
+      ObjectOneTopRight <= ObjectTwoBottomRight
+    )
+      return true
+
+    if (
+      ObjectOneBottomRight >= ObjectTwoTopLeft &&
+      ObjectOneBottomRight <= ObjectTwoBottomRight
+    )
+      return true
+
+    if (
+      ObjectOneBottomLeft >= ObjectTwoTopLeft &&
+      ObjectOneBottomLeft <= ObjectTwoBottomRight
+    )
+      return true
 
     return false
   }
