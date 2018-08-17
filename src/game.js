@@ -26,6 +26,9 @@ export default class Game {
     this.ctx.canvas.height = height
     container.appendChild(this.ctx.canvas)
 
+    // keep track of time in frames
+    this.lastTime = performance.now()
+
     // set static props
     this.ctx.strokeStyle = 'black'
     GameObject.S_W = this.w
@@ -57,8 +60,11 @@ export default class Game {
    * Main game draw loop
    */
   redraw() {
+    // time in second since last update
+    let dt = (performance.now() - this.lastTime) / 1000.0
+
     // update state
-    this.updateState()
+    this.updateState(dt)
 
     // clear previous frame
     this.clear()
@@ -74,8 +80,9 @@ export default class Game {
 
   /**
    * update game state variables
+   * @param {Number} dt Time in seconds since last update
    */
-  updateState() {
+  updateState(dt) {
     // only dynamically update alien && bullet
     const gameObjects = this.store.objects.filter(
       o =>
