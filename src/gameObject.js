@@ -19,8 +19,6 @@ export default class GameObject {
     font,
     x,
     y,
-    x2,
-    y2,
   }) {
     this.type = type
     this.name = name
@@ -33,9 +31,7 @@ export default class GameObject {
     this.isSolid = isSolid
     this.font = font
     this.x = x
-    this.x2 = x2
     this.y = y
-    this.y2 = y2
   }
 
   /**
@@ -48,11 +44,6 @@ export default class GameObject {
     ctx.fillStyle = this.fillStyle
 
     switch (this.type) {
-      case 'line':
-        ctx.moveTo(this.x, this.y)
-        ctx.lineTo(this.x2, this.y2)
-        ctx.stroke()
-        break
       case 'circle':
         ctx.beginPath()
         ctx.font = this.font
@@ -78,13 +69,9 @@ export default class GameObject {
    * @returns {Object} {left, top, right, bottom}
    */
   getBoundingRect() {
-    const rect = { x: this.x, y: this.y, x2: this.x, y2: this.y }
+    const rect = { x: this.x, y: this.y }
 
     switch (this.type) {
-      case 'line':
-        rect.x2 = this.x2
-        rect.y2 = this.y2
-        break
       case 'circle':
         rect.x -= this.w / 2
         rect.y -= this.w / 2

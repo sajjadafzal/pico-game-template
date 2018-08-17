@@ -80,7 +80,7 @@ export default class Game {
       o =>
         o.isOnScreen() &&
         !o.ctrl &&
-        (o.family === 'alien' || o.family === 'bullet')
+        (o.family === 'hero' || o.family === 'alien' || o.family === 'bullet')
     )
 
     for (let i = 0; i < gameObjects.length; i += 1) {
