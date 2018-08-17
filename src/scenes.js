@@ -1,4 +1,5 @@
 import GameObject from './gameObject.js'
+import FAMILIES from './family.js'
 
 /*
   Scenes:
@@ -8,6 +9,7 @@ import GameObject from './gameObject.js'
   100: end
 */
 
+// collection of objects
 const scenes = [
   [
     new GameObject({

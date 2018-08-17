@@ -1,8 +1,9 @@
 import GameObject from './gameObject.js'
 import SCENES from './scenes.js'
+import FAMILIES from './family.js'
 
 /**
- * Game class
+ * Game
  */
 export default class Game {
   /**
@@ -75,17 +76,15 @@ export default class Game {
    * update game state variables
    */
   updateState() {
-    // test code
+    // only dynamically update alien && bullet
     const gameObjects = this.store.objects.filter(
       o =>
-        o.isOnScreen() &&
-        !o.ctrl &&
-        (o.family === 'hero' || o.family === 'alien' || o.family === 'bullet')
+        !o.ctrl && (o.family === FAMILIES.ALIEN || o.family === FAMILIES.BULLET)
     )
 
     for (let i = 0; i < gameObjects.length; i += 1) {
       for (let j = i + 1; j < gameObjects.length; j += 1) {
-        const collision = gameObjects[i].isColliding(gameObjects[j])
+        const hasCollided = gameObjects[i].isColliding(gameObjects[j])
         // update object props
       }
     }
@@ -114,9 +113,15 @@ export default class Game {
   handleInput(e) {
     e.preventDefault()
 
-    this.store.objects.filter(o => o.ctrl).forEach(o => {
-      o.handleInput(e)
-    })
+    // only hero and doors should handle input
+    this.store.objects
+      .filter(
+        o =>
+          o.ctrl && (o.family === FAMILIES.HERO || o.family === FAMILIES.DOOR)
+      )
+      .forEach(o => {
+        o.handleInput(e)
+      })
 
     return false
   }

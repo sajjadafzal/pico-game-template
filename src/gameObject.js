@@ -1,37 +1,44 @@
+import FAMILIES from './family.js'
+
 /**
- * GameObject class
+ * GameObject
  */
 export default class GameObject {
   /**
    *
-   * @param {Object} options options
+   * @param {Array<GameObject>?} options.children GameObject children grouped with this object and drawn relativety to this parent
+   * @param {Boolean?} options.ctrl if object is user control-able
+   * @param {Boolean?} options.isSolid If collision should be detected for this object
+   * @param {HTMLImageElement} options.img Image element
+   * @param {Number} options.h height
+   * @param {Number} options.w width
+   * @param {Number} options.x x posititon of object
+   * @param {Number} options.y y position of object
+   * @param {Object} options Options object containing necessary props for drawing
+   * @param {Object} options.family family of object
+   * @param {String?} options.fillStyle fill style
+   * @param {String?} options.font font style & family
+   * @param {String?} options.name name
+   * @param {String} options.text text
+   * @param {String} options.type draw type of object i.e. rect, circle, image
    */
-  constructor({
-    type,
-    name,
-    family,
-    ctrl,
-    fillStyle = 'black',
-    w,
-    h,
-    text,
-    isSolid,
-    font,
-    x,
-    y,
-  }) {
-    this.type = type
-    this.name = name
-    this.family = family
-    this.ctrl = ctrl
-    this.fillStyle = fillStyle
-    this.w = w
-    this.h = h
-    this.text = text
-    this.isSolid = isSolid
-    this.font = font
-    this.x = x
-    this.y = y
+  constructor(options) {
+    // children grouped with this object and drawn relativety to this parent
+    /** @type {Array<GameObject>} */
+    this.children = options.children
+    this.ctrl = options.ctrl
+    this.family = options.family || FAMILIES.WALL
+    this.fillStyle = options.fillStyle
+    this.font = options.font
+    this.h = options.h
+    this.img = options.img
+    this.isSolid = options.isSolid
+    this.name = options.name
+    this.text = options.text
+    this.type = options.type
+    this.w = options.w
+    this.x = options.x
+    this.y = options.y
   }
 
   /**
@@ -41,27 +48,37 @@ export default class GameObject {
     /** @type {CanvasRenderingContext2D} */
     const ctx = GameObject.CTX
 
-    ctx.fillStyle = this.fillStyle
+    // Convert each object to goup syntax to reduce draw footprint
+    /** @type {GameObject} */
+    const object =
+      this.children.length === 0 ? [{ x: 0, y: 0, children: [this] }] : this
 
-    switch (this.type) {
-      case 'circle':
-        ctx.beginPath()
-        ctx.font = this.font
-        ctx.arc(this.x, this.y, this.w / 2, 0, Math.PI * 2, 0)
-        ctx.fill()
-        break
-      case 'rect':
-        ctx.fillRect(this.x, this.y, this.w, this.h)
-        break
-      case 'text':
-        ctx.fillText(this.text, this.x, this.y)
-        break
-      case 'img':
-      case 'image':
-      default:
-        ctx.drawImage(this.image, this.x, this.y, this.w, this.h)
-        break
-    }
+    object.children.forEach(obj => {
+      ctx.fillStyle = obj.fillStyle
+
+      const x = obj.x + object.x
+      const y = obj.y + object.y
+
+      switch (obj.type) {
+        case 'circle':
+          ctx.beginPath()
+          ctx.font = obj.font
+          ctx.arc(x, y, obj.w / 2, 0, Math.PI * 2, 0)
+          ctx.fill()
+          break
+        case 'rect':
+          ctx.fillRect(x, y, obj.w, obj.h)
+          break
+        case 'text':
+          ctx.fillText(obj.text, x, y)
+          break
+        case 'img':
+        case 'image':
+        default:
+          ctx.drawImage(obj.img, x, y, obj.w, obj.h)
+          break
+      }
+    })
   }
 
   /**
@@ -110,7 +127,7 @@ export default class GameObject {
    */
   isColliding(object) {
     if (!this.isSolid || !object.isSolid) return false
-    if (!this.isOnScreen() || !object.isOnScreen()) return false
+    // if (!this.isOnScreen() || !object.isOnScreen()) return false
 
     const ObjectOne = this.getBoundingRect()
     const ObjectTwo = object.getBoundingRect()
@@ -155,24 +172,22 @@ export default class GameObject {
    * @param {Event} e input event
    */
   handleInput(e) {
+    console.log(this.type)
+
     switch (e.which) {
       case 1: // mouse left click
         break
       case 37: // arrow left
       case 65: // a
-        this.x -= 2
         break
       case 38: // arrow up
       case 87: // w
-        this.y -= 2
         break
       case 39: // arrow right
       case 68: // d
-        this.x += 2
         break
       case 40: // arrow down
       case 83: // s
-        this.y += 2
         break
       default:
         break
