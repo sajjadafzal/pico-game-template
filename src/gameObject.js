@@ -6,33 +6,46 @@ export default class GameObject {
    *
    * @param {Object} options options
    */
-  constructor(options) {
-    this.acc = options.acc || 0
-    this.ctrl = options.ctrl
-    this.dx = options.dx || 0
-    this.dy = options.dy || 0
-    this.fill = options.fill
-    this.h = options.h
-    this.isSolid = options.isSolid
-    this.rad = options.rad
-    this.scr = options.scr
-    this.stroke = options.stroke
-    this.type = options.type
-    this.w = options.w
-    this.x = options.x
-    this.x2 = options.x2
-    this.y = options.y
-    this.y2 = options.y2
+  constructor({
+    type,
+    name,
+    family,
+    ctrl,
+    fillStyle = 'black',
+    w,
+    h,
+    text,
+    isSolid,
+    font,
+    x,
+    y,
+    x2,
+    y2,
+  }) {
+    this.type = type
+    this.name = name
+    this.family = family
+    this.ctrl = ctrl
+    this.fillStyle = fillStyle
+    this.w = w
+    this.h = h
+    this.text = text
+    this.isSolid = isSolid
+    this.font = font
+    this.x = x
+    this.x2 = x2
+    this.y = y
+    this.y2 = y2
   }
 
   /**
    * draw itself onto given context
    */
   draw() {
+    /** @type {CanvasRenderingContext2D} */
     const ctx = GameObject.CTX
 
-    ctx.fillStyle = this.fill || 'black'
-    ctx.strokeStyle = this.stroke || 'black'
+    ctx.fillStyle = this.fillStyle
 
     switch (this.type) {
       case 'line':
@@ -42,11 +55,15 @@ export default class GameObject {
         break
       case 'circle':
         ctx.beginPath()
-        ctx.arc(this.x, this.y, this.rad, 0, Math.PI * 2, 0)
+        ctx.font = this.font
+        ctx.arc(this.x, this.y, this.w / 2, 0, Math.PI * 2, 0)
         ctx.fill()
         break
       case 'rect':
         ctx.fillRect(this.x, this.y, this.w, this.h)
+        break
+      case 'text':
+        ctx.fillText(this.text, this.x, this.y)
         break
       case 'img':
       case 'image':
@@ -61,12 +78,7 @@ export default class GameObject {
    * @returns {Object} {left, top, right, bottom}
    */
   getBoundingRect() {
-    const rect = {
-      x: this.x,
-      y: this.y,
-      x2: this.x,
-      y2: this.y,
-    }
+    const rect = { x: this.x, y: this.y, x2: this.x, y2: this.y }
 
     switch (this.type) {
       case 'line':
@@ -74,10 +86,10 @@ export default class GameObject {
         rect.y2 = this.y2
         break
       case 'circle':
-        rect.x -= this.rad
-        rect.y -= this.rad
-        rect.x2 += this.rad
-        rect.y2 += this.rad
+        rect.x -= this.w / 2
+        rect.y -= this.w / 2
+        rect.x2 += this.w / 2
+        rect.y2 += this.w / 2
         break
       case 'rect':
       case 'img':
@@ -106,8 +118,7 @@ export default class GameObject {
 
   /**
    * Detect if two objects are on-screen and colliding
-   * @param {GameObject} ObjectOne Object
-   * @param {GameObject} ObjectTwo Object
+   * @param {GameObject} object Object
    * @returns {Boolean} Returns true if collision is detected
    */
   isColliding(object) {
@@ -157,23 +168,24 @@ export default class GameObject {
    * @param {Event} e input event
    */
   handleInput(e) {
-    // TODO: handle input
-    console.log('Object input: ', this.type, e.which)
-
     switch (e.which) {
       case 1: // mouse left click
         break
       case 37: // arrow left
       case 65: // a
+        this.x -= 2
         break
       case 38: // arrow up
       case 87: // w
+        this.y -= 2
         break
       case 39: // arrow right
       case 68: // d
+        this.x += 2
         break
       case 40: // arrow down
       case 83: // s
+        this.y += 2
         break
       default:
         break
