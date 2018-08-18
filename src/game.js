@@ -85,12 +85,11 @@ export default class Game {
       .filter(o => o.family === FAMILIES.ALIEN || o.family === FAMILIES.BULLET)
       // convert nested group into flat array
       .reduce((prev, cur) => {
-        if (cur.children.length === 0) return prev.push(cur)
+        prev.push(cur)
 
         cur.children.forEach(c => {
           c.x += cur.x
           c.y += cur.y
-
           prev.push(c)
         })
 

@@ -42,18 +42,15 @@ export default class GameObject {
    * draw itself onto given context
    */
   draw(ctx) {
-    // extract children (if any) into a new array
-    const objects =
-      this.children.length === 0
-        ? [this]
-        : this.children
-            .map(o => {
-              let n = Object.create(o)
-              n.x += this.x
-              n.y += this.y
-              return n
-            })
-            .concat([this])
+    const objects = [
+      this,
+      ...this.children.map(o => {
+        let n = Object.create(o)
+        n.x += this.x
+        n.y += this.y
+        return n
+      }),
+    ]
 
     // draw all
     objects.forEach(o => {
