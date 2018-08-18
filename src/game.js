@@ -1,6 +1,6 @@
-import GameObject from './gameObject.js'
-import SCENES from './scenes.js'
 import FAMILIES from './families.js'
+import SCENES from './scenes.js'
+// import GameObject from './gameObject.js'
 
 /**
  * Game
@@ -27,14 +27,14 @@ export default class Game {
     container.appendChild(this.ctx.canvas)
 
     // keep track of time in frames
-    this.lastTime = performance.now()
-    this.dt = 0
+    // this.lastTime = performance.now()
+    // this.dt = 0
 
     // set static props
-    this.ctx.strokeStyle = 'black'
-    GameObject.S_W = this.w
-    GameObject.S_H = this.h
-    GameObject.CTX = this.ctx
+    // this.ctx.strokeStyle = 'black'
+    // GameObject.S_W = this.w
+    // GameObject.S_H = this.h
+    // GameObject.CTX = this.ctx
 
     // initial vars
     this.store = { currentScene: 0, objects: SCENES[0] }
@@ -55,10 +55,10 @@ export default class Game {
   /**
    * Main game draw loop
    */
-  redraw(timestamp) {
+  redraw(/* timestamp */) {
     // calculate time difference since last frame
-    if (!this.lastTime) this.lastTime = timestamp
-    this.dt = this.lastTime - timestamp
+    // if (!this.lastTime) this.lastTime = timestamp
+    // this.dt = this.lastTime - timestamp
 
     // update state
     this.updateState()
@@ -117,7 +117,7 @@ export default class Game {
    */
   draw() {
     this.store.objects.forEach(o => {
-      o.draw()
+      o.draw(this.ctx)
     })
   }
 

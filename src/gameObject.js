@@ -26,52 +26,56 @@ export default class GameObject {
     /** @type {Array<GameObject>} */
     this.children = options.children || []
     this.family = options.family || FAMILIES.WALL
-    this.fillStyle = options.fillStyle
-    this.font = options.font
+    this.fill = options.fill || '#000'
+    this.font = options.font || '12px arial'
     this.h = options.h
     this.img = options.img
     this.name = options.name
     this.text = options.text
     this.type = options.type
     this.w = options.w
-    this.x = options.x
+    this.x = options.x // scale x,y,w,h from 100 to any resolution
     this.y = options.y
   }
 
   /**
    * draw itself onto given context
    */
-  draw() {
-    /** @type {CanvasRenderingContext2D} */
-    const ctx = GameObject.CTX
+  draw(ctx) {
+    // extract children (if any) into a new array
+    const objects =
+      this.children.length === 0
+        ? [this]
+        : this.children
+            .map(o => {
+              let n = Object.create(o)
+              n.x += this.x
+              n.y += this.y
+              return n
+            })
+            .concat([this])
 
-    // Convert each object to goup syntax to reduce draw footprint
-    /** @type {GameObject} */
-    const object =
-      this.children.length === 0 ? { x: 0, y: 0, children: [this] } : this
+    // draw all
+    objects.forEach(o => {
+      ctx.fillStyle = o.fill
 
-    object.children.forEach(obj => {
-      ctx.fillStyle = obj.fillStyle
-
-      const x = obj.x + object.x
-      const y = obj.y + object.y
-
-      switch (obj.type) {
+      switch (o.type) {
         case SHAPE_TYPES.CIRCLE:
           ctx.beginPath()
-          ctx.font = obj.font
-          ctx.arc(x, y, obj.w / 2, 0, Math.PI * 2, 0)
+          ctx.font = o.font
+          ctx.arc(o.x, o.y, o.w / 2, 0, Math.PI * 2, 0)
           ctx.fill()
           break
         case SHAPE_TYPES.RECT:
-          ctx.fillRect(x, y, obj.w, obj.h)
+          ctx.fillRect(o.x, o.y, o.w, o.h)
           break
         case SHAPE_TYPES.TEXT:
-          ctx.fillText(obj.text, x, y)
+          ctx.font = this.font
+          ctx.fillText(o.text, o.x, o.y)
           break
         case SHAPE_TYPES.IMAGE:
         default:
-          ctx.drawImage(obj.img, x, y, obj.w, obj.h)
+          ctx.drawImage(o.img, o.x, o.y, o.w, o.h)
           break
       }
     })
