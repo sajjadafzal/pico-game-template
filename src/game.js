@@ -147,7 +147,7 @@ export default class Game {
 
     assets.forEach(a => {
       promises.push(
-        new Promise((resolve, reject) => {
+        new Promise(resolve => {
           const ext = a.url.split('.').slice(-1)[0]
           if (ext === 'jpg') {
             // load image
@@ -158,9 +158,6 @@ export default class Game {
                 media: img,
               })
             }
-            img.onerror = err => {
-              reject(err)
-            }
             img.src = a.url
           } else {
             // load sound
@@ -170,9 +167,6 @@ export default class Game {
                 name: a.name,
                 media: audio,
               })
-            }
-            audio.onerror = err => {
-              reject(err)
             }
           }
         })

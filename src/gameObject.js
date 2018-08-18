@@ -59,7 +59,6 @@ export default class GameObject {
       switch (o.type) {
         case SHAPE_TYPES.CIRCLE:
           ctx.beginPath()
-          ctx.font = o.font
           ctx.arc(o.x, o.y, o.w / 2, 0, Math.PI * 2, 0)
           ctx.fill()
           break
