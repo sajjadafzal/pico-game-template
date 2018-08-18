@@ -137,49 +137,49 @@ export default class Game {
 
     return false
   }
-}
 
-/**
- *  Loads the provided list of assets and return the ready to use list
- * @param {Array<Object>} arr Assets array to load
- * @returns {Array<Object>} Collection of loaded results
- */
-Game.loadAssets = assets => {
-  const promises = []
+  /**
+   *  Loads the provided list of assets and return the ready to use list
+   * @param {Array<Object>} arr Assets array to load
+   * @returns {Array<Object>} Collection of loaded results
+   */
+  static loadAssets(assets) {
+    const promises = []
 
-  assets.forEach(a => {
-    promises.push(
-      new Promise((resolve, reject) => {
-        const ext = a.url.split('.').slice(-1)[0]
-        if (ext === 'jpg') {
-          // load image
-          const img = new Image()
-          img.onload = () => {
-            resolve({
-              name: a.name,
-              media: img,
-            })
+    assets.forEach(a => {
+      promises.push(
+        new Promise((resolve, reject) => {
+          const ext = a.url.split('.').slice(-1)[0]
+          if (ext === 'jpg') {
+            // load image
+            const img = new Image()
+            img.onload = () => {
+              resolve({
+                name: a.name,
+                media: img,
+              })
+            }
+            img.onerror = err => {
+              reject(err)
+            }
+            img.src = a.url
+          } else {
+            // load sound
+            const audio = new Audio(a.url)
+            audio.oncanplay = () => {
+              resolve({
+                name: a.name,
+                media: audio,
+              })
+            }
+            audio.onerror = err => {
+              reject(err)
+            }
           }
-          img.onerror = err => {
-            reject(err)
-          }
-          img.src = a.url
-        } else {
-          // load sound
-          const audio = new Audio(a.url)
-          audio.oncanplay = () => {
-            resolve({
-              name: a.name,
-              media: audio,
-            })
-          }
-          audio.onerror = err => {
-            reject(err)
-          }
-        }
-      })
-    )
-  })
+        })
+      )
+    })
 
-  return Promise.all(promises)
+    return Promise.all(promises)
+  }
 }
