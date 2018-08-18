@@ -1,6 +1,6 @@
 import GameObject from './gameObject.js'
 import SCENES from './scenes.js'
-import FAMILIES from './family.js'
+import FAMILIES from './families.js'
 
 /**
  * Game
@@ -28,6 +28,7 @@ export default class Game {
 
     // keep track of time in frames
     this.lastTime = performance.now()
+    this.dt = 0
 
     // set static props
     this.ctx.strokeStyle = 'black'
@@ -47,24 +48,20 @@ export default class Game {
       document.addEventListener('keydown', e => this.handleInput(e))
 
       // start game loop
-      this.start()
+      this.redraw()
     })
-  }
-
-  // initiates drawing loop
-  start() {
-    this.redraw()
   }
 
   /**
    * Main game draw loop
    */
-  redraw() {
-    // time in second since last update
-    let dt = (performance.now() - this.lastTime) / 1000.0
+  redraw(timestamp) {
+    // calculate time difference since last frame
+    if (!this.lastTime) this.lastTime = timestamp
+    this.dt = this.lastTime - timestamp
 
     // update state
-    this.updateState(dt)
+    this.updateState()
 
     // clear previous frame
     this.clear()
@@ -73,8 +70,8 @@ export default class Game {
     this.draw()
 
     // redraw loop
-    window.requestAnimationFrame(() => {
-      this.redraw()
+    window.requestAnimationFrame(timestamp => {
+      this.redraw(timestamp)
     })
   }
 
@@ -82,7 +79,7 @@ export default class Game {
    * update game state variables
    * @param {Number} dt Time in seconds since last update
    */
-  updateState(dt) {
+  updateState() {
     // only dynamically update alien && bullet
     const gameObjects = this.store.objects
       .filter(o => o.family === FAMILIES.ALIEN || o.family === FAMILIES.BULLET)

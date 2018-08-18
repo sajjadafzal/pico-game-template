@@ -1,4 +1,5 @@
-import FAMILIES from './family.js'
+import FAMILIES from './families.js'
+import SHAPE_TYPES from './shapeTypes.js'
 
 /**
  * GameObject
@@ -7,7 +8,6 @@ export default class GameObject {
   /**
    *
    * @param {Array<GameObject>?} options.children GameObject children grouped with this object and drawn relativety to this parent
-   * @param {Boolean?} options.isSolid If collision should be detected for this object
    * @param {HTMLImageElement} options.img Image element
    * @param {Number} options.h height
    * @param {Number} options.w width
@@ -30,7 +30,6 @@ export default class GameObject {
     this.font = options.font
     this.h = options.h
     this.img = options.img
-    this.isSolid = options.isSolid
     this.name = options.name
     this.text = options.text
     this.type = options.type
@@ -49,7 +48,7 @@ export default class GameObject {
     // Convert each object to goup syntax to reduce draw footprint
     /** @type {GameObject} */
     const object =
-      this.children.length === 0 ? [{ x: 0, y: 0, children: [this] }] : this
+      this.children.length === 0 ? { x: 0, y: 0, children: [this] } : this
 
     object.children.forEach(obj => {
       ctx.fillStyle = obj.fillStyle
@@ -58,20 +57,19 @@ export default class GameObject {
       const y = obj.y + object.y
 
       switch (obj.type) {
-        case 'circle':
+        case SHAPE_TYPES.CIRCLE:
           ctx.beginPath()
           ctx.font = obj.font
           ctx.arc(x, y, obj.w / 2, 0, Math.PI * 2, 0)
           ctx.fill()
           break
-        case 'rect':
+        case SHAPE_TYPES.RECT:
           ctx.fillRect(x, y, obj.w, obj.h)
           break
-        case 'text':
+        case SHAPE_TYPES.TEXT:
           ctx.fillText(obj.text, x, y)
           break
-        case 'img':
-        case 'image':
+        case SHAPE_TYPES.IMAGE:
         default:
           ctx.drawImage(obj.img, x, y, obj.w, obj.h)
           break
@@ -87,15 +85,14 @@ export default class GameObject {
     const rect = { x: this.x, y: this.y }
 
     switch (this.type) {
-      case 'circle':
+      case SHAPE_TYPES.CIRCLE:
         rect.x -= this.w / 2
         rect.y -= this.w / 2
         rect.x2 += this.w / 2
         rect.y2 += this.w / 2
         break
-      case 'rect':
-      case 'img':
-      case 'image':
+      case SHAPE_TYPES.RECT:
+      case SHAPE_TYPES.IMAGE:
       default:
         rect.x2 += this.w
         rect.y2 += this.h
@@ -106,27 +103,11 @@ export default class GameObject {
   }
 
   /**
-   * Returns true if object is visible on screen
-   * @returns Boolean
-   */
-  isOnScreen() {
-    const o = this.getBoundingRect()
-
-    if (o.x * o.y >= 0 && o.x2 * o.y2 <= GameObject.S_W * GameObject.S_H)
-      return true
-
-    return false
-  }
-
-  /**
    * Detect if two objects are on-screen and colliding
    * @param {GameObject} object Object
    * @returns {Boolean} Returns true if collision is detected
    */
   isColliding(object) {
-    if (!this.isSolid || !object.isSolid) return false
-    // if (!this.isOnScreen() || !object.isOnScreen()) return false
-
     const ObjectOne = this.getBoundingRect()
     const ObjectTwo = object.getBoundingRect()
 
