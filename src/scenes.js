@@ -46,7 +46,6 @@ const scenes = [
       y: 75,
       w: 50,
       h: 50,
-      ctrl: true,
     }),
     new GameObject({
       type: 'rect',

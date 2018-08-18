@@ -84,10 +84,21 @@ export default class Game {
    */
   updateState(dt) {
     // only dynamically update alien && bullet
-    const gameObjects = this.store.objects.filter(
-      o =>
-        !o.ctrl && (o.family === FAMILIES.ALIEN || o.family === FAMILIES.BULLET)
-    )
+    const gameObjects = this.store.objects
+      .filter(o => o.family === FAMILIES.ALIEN || o.family === FAMILIES.BULLET)
+      // convert nested group into flat array
+      .reduce((prev, cur) => {
+        if (cur.children.length === 0) return prev.push(cur)
+
+        cur.children.forEach(c => {
+          c.x += cur.x
+          c.y += cur.y
+
+          prev.push(c)
+        })
+
+        return prev
+      }, [])
 
     for (let i = 0; i < gameObjects.length; i += 1) {
       for (let j = i + 1; j < gameObjects.length; j += 1) {
@@ -122,10 +133,7 @@ export default class Game {
 
     // only hero and doors should handle input
     this.store.objects
-      .filter(
-        o =>
-          o.ctrl && (o.family === FAMILIES.HERO || o.family === FAMILIES.DOOR)
-      )
+      .filter(o => o.family === FAMILIES.HERO || o.family === FAMILIES.DOOR)
       .forEach(o => {
         o.handleInput(e)
       })

@@ -7,7 +7,6 @@ export default class GameObject {
   /**
    *
    * @param {Array<GameObject>?} options.children GameObject children grouped with this object and drawn relativety to this parent
-   * @param {Boolean?} options.ctrl if object is user control-able
    * @param {Boolean?} options.isSolid If collision should be detected for this object
    * @param {HTMLImageElement} options.img Image element
    * @param {Number} options.h height
@@ -25,8 +24,7 @@ export default class GameObject {
   constructor(options) {
     // children grouped with this object and drawn relativety to this parent
     /** @type {Array<GameObject>} */
-    this.children = options.children
-    this.ctrl = options.ctrl
+    this.children = options.children || []
     this.family = options.family || FAMILIES.WALL
     this.fillStyle = options.fillStyle
     this.font = options.font
