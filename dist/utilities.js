@@ -1,1 +1,0 @@
-export default{Store:class{constructor(){this.score=0,console.log('Store')}reset(){this.score=0}}};

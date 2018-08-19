@@ -81,6 +81,7 @@ export default class Game {
    */
   updateState() {
     // only dynamically update alien && bullet
+    /** @type {Array<GameObject>} */
     const gameObjects = this.store.objects
       .filter(o => o.family === FAMILIES.ALIEN || o.family === FAMILIES.BULLET)
       // convert nested group into flat array
@@ -128,11 +129,9 @@ export default class Game {
     e.preventDefault()
 
     // only hero and doors should handle input
-    this.store.objects
-      .filter(o => o.family === FAMILIES.HERO || o.family === FAMILIES.DOOR)
-      .forEach(o => {
-        o.handleInput(e)
-      })
+    this.store.objects.filter(o => o.family === FAMILIES.HERO).forEach(o => {
+      o.handleInput(e)
+    })
 
     return false
   }

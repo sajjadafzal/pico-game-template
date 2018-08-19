@@ -1,6 +1,6 @@
 import FAMILIES from './families.js'
 import SHAPE_TYPES from './shapeTypes.js'
-
+// TODO: convert all dimentions to int for faster & sharper canvas drawing
 /**
  * GameObject
  */
@@ -27,13 +27,13 @@ export default class GameObject {
     this.children = options.children || []
     this.family = options.family || FAMILIES.WALL
     this.fill = options.fill || '#000'
-    this.font = options.font || '12px arial'
-    this.h = options.h
+    this.font = options.font || 6
+    this.h = options.h || 2
     this.img = options.img
     this.name = options.name
     this.text = options.text
     this.type = options.type
-    this.w = options.w
+    this.w = options.w || 2
     this.x = options.x
     this.y = options.y
   }
@@ -81,10 +81,14 @@ export default class GameObject {
           ctx.fillRect(o.x, o.y, o.w, o.h)
           break
         case SHAPE_TYPES.TEXT:
+          ctx.beginPath()
+          // scale font
+          o.font *= GameObject.S_W / 100
+
           // font height to text shape to correct x,y
-          o.y += parseInt(o.font, 10)
-          // TODO: scale font size against 100%
-          ctx.font = o.font
+          o.y += o.font
+
+          ctx.font = `${o.font}px arial`
           ctx.fillText(o.text, o.x, o.y)
           break
         case SHAPE_TYPES.IMAGE:
