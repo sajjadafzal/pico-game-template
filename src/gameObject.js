@@ -15,7 +15,7 @@ export default class GameObject {
    * @param {Number} options.y y position of object
    * @param {Object} options Options object containing necessary props for drawing
    * @param {Object} options.family family of object
-   * @param {String?} options.fillStyle fill style
+   * @param {String?} options.fill fill style
    * @param {String?} options.font font style & family
    * @param {String?} options.name name
    * @param {String} options.text text
@@ -34,16 +34,22 @@ export default class GameObject {
     this.text = options.text
     this.type = options.type
     this.w = options.w
-    this.x = options.x // scale x,y,w,h from 100 to any resolution
+    this.x = options.x
     this.y = options.y
   }
 
   /**
    * draw itself onto given context
+   * @param {CanvasRenderingContext2D} ctx Game canvas 2d context
    */
   draw(ctx) {
+    const SCALE_X = GameObject.S_W / 100
+    const SCALE_Y = GameObject.S_H / 100
+
+    // clone this and each children into new array and update coordinates
+    /** @type {Array<GameObject>} */
     const objects = [
-      this,
+      Object.create(this),
       ...this.children.map(o => {
         let n = Object.create(o)
         n.x += this.x
@@ -54,10 +60,19 @@ export default class GameObject {
 
     // draw all
     objects.forEach(o => {
+      o.x *= SCALE_X
+      o.y *= SCALE_Y
+      o.w *= SCALE_X
+      o.h *= SCALE_Y
+
       ctx.fillStyle = o.fill
 
       switch (o.type) {
         case SHAPE_TYPES.CIRCLE:
+          // use circle bounding rect top, left as x,y
+          o.x += o.w / 2
+          o.y += o.w / 2
+
           ctx.beginPath()
           ctx.arc(o.x, o.y, o.w / 2, 0, Math.PI * 2, 0)
           ctx.fill()
@@ -66,7 +81,10 @@ export default class GameObject {
           ctx.fillRect(o.x, o.y, o.w, o.h)
           break
         case SHAPE_TYPES.TEXT:
-          ctx.font = this.font
+          // font height to text shape to correct x,y
+          o.y += parseInt(o.font, 10)
+          // TODO: scale font size against 100%
+          ctx.font = o.font
           ctx.fillText(o.text, o.x, o.y)
           break
         case SHAPE_TYPES.IMAGE:

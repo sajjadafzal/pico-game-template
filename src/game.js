@@ -1,6 +1,6 @@
 import FAMILIES from './families.js'
+import GameObject from './gameObject.js'
 import SCENES from './scenes.js'
-// import GameObject from './gameObject.js'
 
 /**
  * Game
@@ -32,8 +32,8 @@ export default class Game {
 
     // set static props
     // this.ctx.strokeStyle = 'black'
-    // GameObject.S_W = this.w
-    // GameObject.S_H = this.h
+    GameObject.S_W = this.w
+    GameObject.S_H = this.h
     // GameObject.CTX = this.ctx
 
     // initial vars
@@ -70,8 +70,8 @@ export default class Game {
     this.draw()
 
     // redraw loop
-    window.requestAnimationFrame(timestamp => {
-      this.redraw(timestamp)
+    window.requestAnimationFrame(() => {
+      this.redraw()
     })
   }
 
