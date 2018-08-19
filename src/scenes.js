@@ -39,6 +39,23 @@ const SCENES = [
       // font: 30,
     }),
   ],
+  [
+    new GameObject({
+      type: SHAPE_TYPES.RECT,
+      x: 0,
+      y: 0,
+      w: 100,
+      h: 100,
+    }),
+    new GameObject({
+      type: SHAPE_TYPES.TEXT,
+      text: 'Level One',
+      x: 25,
+      y: 25,
+      fill: 'yellow',
+      font: 10,
+    }),
+  ],
 ]
 
 export default SCENES

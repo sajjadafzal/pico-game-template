@@ -128,11 +128,15 @@ export default class Game {
   handleInput(e) {
     e.preventDefault()
 
-    // only hero and doors should handle input
-    this.store.objects.filter(o => o.family === FAMILIES.HERO).forEach(o => {
-      o.handleInput(e)
-    })
-
+    if (e.which === 1 && this.store.currentScene === 0) {
+      this.store.currentScene = 1
+      ;[, this.store.objects] = SCENES
+    } else {
+      // only hero should handle input
+      this.store.objects.filter(o => o.family === FAMILIES.HERO).forEach(o => {
+        o.handleInput(e)
+      })
+    }
     return false
   }
 
