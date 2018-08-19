@@ -1,6 +1,5 @@
 import FAMILIES from './families.js'
 import SHAPE_TYPES from './shapeTypes.js'
-// TODO: convert all dimentions to int for faster & sharper canvas drawing
 /**
  * GameObject
  */
@@ -20,6 +19,7 @@ export default class GameObject {
    * @param {String?} options.name name
    * @param {String} options.text text
    * @param {String} options.type draw type of object i.e. rect, circle, image
+   * @param {Number} options.zIndex index level of object to draw, higher index means object will be on top
    */
   constructor(options) {
     // children grouped with this object and drawn relativety to this parent
@@ -36,6 +36,7 @@ export default class GameObject {
     this.w = options.w || 2
     this.x = options.x
     this.y = options.y
+    this.zIndex = options.zIndex || 1
   }
 
   /**
@@ -75,10 +76,9 @@ export default class GameObject {
 
           ctx.beginPath()
           ctx.arc(o.x, o.y, o.w / 2, 0, Math.PI * 2, 0)
-          ctx.fill()
           break
         case SHAPE_TYPES.RECT:
-          ctx.fillRect(o.x, o.y, o.w, o.h)
+          ctx.rect(o.x, o.y, o.w, o.h)
           break
         case SHAPE_TYPES.TEXT:
           ctx.beginPath()
@@ -97,6 +97,9 @@ export default class GameObject {
           break
       }
     })
+
+    // use single fill ofr all rects/arcs
+    ctx.fill()
   }
 
   /**

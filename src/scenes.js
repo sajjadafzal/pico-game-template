@@ -21,6 +21,7 @@ const SCENES = [
       y: 0,
       w: 100,
       h: 100,
+      zIndex: 0,
     }),
     new GameObject({
       type: SHAPE_TYPES.TEXT,
@@ -37,6 +38,20 @@ const SCENES = [
       y: 75,
       fill: 'white',
       // font: 30,
+    }),
+    new GameObject({
+      type: SHAPE_TYPES.CIRCLE,
+      x: 40,
+      y: 0,
+      w: 10,
+      fill: 'red',
+    }),
+    new GameObject({
+      type: SHAPE_TYPES.CIRCLE,
+      x: 50,
+      y: 0,
+      w: 10,
+      fill: 'green',
     }),
   ],
   [

@@ -116,7 +116,8 @@ export default class Game {
    * draw all game objects in current frame
    */
   draw() {
-    this.store.objects.forEach(o => {
+    // sort by zIndx and draw
+    this.store.objects.sort((a, b) => a.zIndex - b.zIndex).forEach(o => {
       o.draw(this.ctx)
     })
   }
