@@ -83,7 +83,7 @@ export default class GameObject {
           ctx.rect(o.x, o.y, o.w, o.h)
           ctx.fill()
 
-          if (o.name && o.children.length > 0) {
+          if (o.name) {
             ctx.font = `8px arial`
             ctx.fillStyle = 'green'
             ctx.fillText(o.name, o.x + o.w / 2 + 10, o.y + o.h / 2 - 10)
