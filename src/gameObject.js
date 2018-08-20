@@ -76,9 +76,11 @@ export default class GameObject {
 
           ctx.beginPath()
           ctx.arc(o.x, o.y, o.w / 2, 0, Math.PI * 2, 0)
+          ctx.fill()
           break
         case SHAPE_TYPES.RECT:
           ctx.rect(o.x, o.y, o.w, o.h)
+          ctx.fill()
           break
         case SHAPE_TYPES.TEXT:
           ctx.beginPath()
@@ -97,9 +99,6 @@ export default class GameObject {
           break
       }
     })
-
-    // use single fill ofr all rects/arcs
-    ctx.fill()
   }
 
   /**
