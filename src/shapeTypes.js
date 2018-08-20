@@ -3,7 +3,7 @@
  */
 const SHAPE_TYPES = {
   TEXT: 'TEXT',
-  RECT: 'BULLET',
+  RECT: 'RECT',
   CIRCLE: 'CIRCLE',
   IMAGE: 'IMG',
 }

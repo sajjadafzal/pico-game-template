@@ -1,7 +1,7 @@
 import GameObject from './gameObject.js'
 import SHAPE_TYPES from './shapeTypes.js'
-// import FAMILIES from './family.js'
-const scale = 1.33
+import FAMILIES from './families.js'
+
 /*
   Scenes:
   0: menu
@@ -15,6 +15,17 @@ const scale = 1.33
  */
 const SCENES = [
   [
+    new GameObject({
+      type: SHAPE_TYPES.RECT,
+      family: FAMILIES.HERO,
+      name: 'TopWall',
+      x: 3,
+      y: 3,
+      w: 4,
+      h: 4,
+      zIndex: 999,
+      fill: 'green',
+    }),
     new GameObject({
       type: SHAPE_TYPES.RECT,
       name: 'TopWall',
@@ -60,7 +71,6 @@ const SCENES = [
         }),
       ],
     }),
-
     new GameObject({
       type: SHAPE_TYPES.RECT,
       name: 'L180DegreePart1',

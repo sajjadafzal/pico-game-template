@@ -80,22 +80,8 @@ export default class Game {
    * @param {Number} dt Time in seconds since last update
    */
   updateState() {
-    // only dynamically update alien && bullet
     /** @type {Array<GameObject>} */
-    const gameObjects = this.store.objects
-      .filter(o => o.family === FAMILIES.ALIEN || o.family === FAMILIES.BULLET)
-      // convert nested group into flat array
-      .reduce((prev, cur) => {
-        prev.push(cur)
-
-        cur.children.forEach(c => {
-          c.x += cur.x
-          c.y += cur.y
-          prev.push(c)
-        })
-
-        return prev
-      }, [])
+    const gameObjects = this.getCollideAbleObjects()
 
     for (let i = 0; i < gameObjects.length; i += 1) {
       for (let j = i + 1; j < gameObjects.length; j += 1) {
@@ -129,16 +115,74 @@ export default class Game {
   handleInput(e) {
     e.preventDefault()
 
-    if (e.which === 1 && this.store.currentScene === 0) {
-      this.store.currentScene = 1
-      ;[, this.store.objects] = SCENES
-    } else {
-      // only hero should handle input
-      this.store.objects.filter(o => o.family === FAMILIES.HERO).forEach(o => {
-        o.handleInput(e)
-      })
+    function update(o, i) {
+      const increment = i || 1
+
+      switch (e.which) {
+        case 1: // mouse left click
+          break
+        case 37: // arrow left
+        case 65: // a
+          o.x -= increment
+          break
+        case 38: // arrow up
+        case 87: // w
+          o.y -= increment
+          break
+        case 39: // arrow right
+        case 68: // d
+          o.x += increment
+          break
+        case 40: // arrow down
+        case 83: // s
+          o.y += increment
+          break
+        default:
+          break
+      }
     }
+
+    /** @type {Array<GameObject>} */
+    const gameObjects = this.getCollideAbleObjects()
+    /** @type {GameObject} */
+    const hero = gameObjects.filter(o => o.family === FAMILIES.HERO)[0]
+
+    // update hero position
+    update(hero)
+    if (
+      gameObjects.some(o => hero.isColliding(o) && o.family !== FAMILIES.HERO)
+    ) {
+      // revert update if collision detected
+      update(hero, -1)
+    }
+
     return false
+  }
+
+  getCollideAbleObjects() {
+    /** @type {Array<GameObject>} */
+    const gameObjects = this.store.objects
+      .filter(
+        o =>
+          o.family === FAMILIES.ALIEN ||
+          o.family === FAMILIES.BULLET ||
+          o.family === FAMILIES.HERO ||
+          o.family === FAMILIES.WALL
+      )
+      // convert nested group into flat array
+      .reduce((prev, cur) => {
+        prev.push(cur)
+
+        cur.children.forEach(c => {
+          c.x += cur.x
+          c.y += cur.y
+          prev.push(c)
+        })
+
+        return prev
+      }, [])
+
+    return gameObjects
   }
 
   /**

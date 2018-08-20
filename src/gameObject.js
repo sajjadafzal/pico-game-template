@@ -32,7 +32,7 @@ export default class GameObject {
     this.img = options.img
     this.name = options.name
     this.text = options.text
-    this.type = options.type
+    this.type = options.type || SHAPE_TYPES.RECT
     this.w = options.w || 2
     this.x = options.x
     this.y = options.y
@@ -109,70 +109,32 @@ export default class GameObject {
   }
 
   /**
-   * Finds the bounding rect position for object
-   * @returns {Object} {left, top, right, bottom}
-   */
-  getBoundingRect() {
-    const rect = { x: this.x, y: this.y }
-
-    switch (this.type) {
-      case SHAPE_TYPES.CIRCLE:
-        rect.x -= this.w / 2
-        rect.y -= this.w / 2
-        rect.x2 += this.w / 2
-        rect.y2 += this.w / 2
-        break
-      case SHAPE_TYPES.RECT:
-      case SHAPE_TYPES.IMAGE:
-      default:
-        rect.x2 += this.w
-        rect.y2 += this.h
-        break
-    }
-
-    return rect
-  }
-
-  /**
    * Detect if two objects are on-screen and colliding
    * @param {GameObject} object Object
    * @returns {Boolean} Returns true if collision is detected
    */
-  isColliding(object) {
-    const ObjectOne = this.getBoundingRect()
-    const ObjectTwo = object.getBoundingRect()
-
-    const ObjectTwoTopLeft = ObjectTwo.x * ObjectTwo.y
-    const ObjectTwoBottomRight = ObjectTwo.x2 * ObjectTwo.y2
-
-    const ObjectOneTopLeft = ObjectOne.x * ObjectOne.y
-    const ObjectOneTopRight = ObjectOne.x2 * ObjectOne.y
-    const ObjectOneBottomRight = ObjectOne.x2 * ObjectOne.y2
-    const ObjectOneBottomLeft = ObjectOne.x * ObjectOne.y2
+  isColliding(o) {
+    if (
+      (this.x > o.x && this.x < o.x + o.w) ||
+      (this.x + this.w > o.x && this.x + this.w < o.x + o.w)
+    ) {
+      if (
+        (this.y > o.y && this.y < o.y + o.h) ||
+        (this.y + this.h > o.y && this.y + this.h < o.y + o.h)
+      )
+        return true
+    }
 
     if (
-      ObjectOneTopLeft >= ObjectTwoTopLeft &&
-      ObjectOneTopLeft <= ObjectTwoBottomRight
-    )
-      return true
-
-    if (
-      ObjectOneTopRight >= ObjectTwoTopLeft &&
-      ObjectOneTopRight <= ObjectTwoBottomRight
-    )
-      return true
-
-    if (
-      ObjectOneBottomRight >= ObjectTwoTopLeft &&
-      ObjectOneBottomRight <= ObjectTwoBottomRight
-    )
-      return true
-
-    if (
-      ObjectOneBottomLeft >= ObjectTwoTopLeft &&
-      ObjectOneBottomLeft <= ObjectTwoBottomRight
-    )
-      return true
+      (o.x > this.x && o.x < this.x + this.w) ||
+      (o.x + o.w > this.x && o.x + o.w < this.x + this.w)
+    ) {
+      if (
+        (o.y > this.y && o.y < this.y + this.h) ||
+        (o.y + o.h > this.y && o.y + o.h < this.y + this.h)
+      )
+        return true
+    }
 
     return false
   }
