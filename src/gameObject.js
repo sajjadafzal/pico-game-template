@@ -44,8 +44,8 @@ export default class GameObject {
    * @param {CanvasRenderingContext2D} ctx Game canvas 2d context
    */
   draw(ctx) {
-    const SCALE_X = GameObject.S_W / 100
-    const SCALE_Y = GameObject.S_H / 100
+    const SCALE_X = ctx.canvas.width / 100
+    const SCALE_Y = ctx.canvas.height / 100
 
     // clone this and each children into new array and update coordinates
     /** @type {Array<GameObject>} */
@@ -83,7 +83,7 @@ export default class GameObject {
           ctx.rect(o.x, o.y, o.w, o.h)
           ctx.fill()
 
-          if (o.name && o.children.length > 0) {
+          if (o.name) {
             ctx.font = `8px arial`
             ctx.fillStyle = 'green'
             ctx.fillText(o.name, o.x + o.w / 2 + 10, o.y + o.h / 2 - 10)
@@ -92,9 +92,8 @@ export default class GameObject {
         case SHAPE_TYPES.TEXT:
           ctx.beginPath()
           // scale font
-          o.font *= GameObject.S_W / 100
-
-          // font height to text shape to correct x,y
+          o.font *= SCALE_X / 100
+          // add font height to text shape to correct x,y
           o.y += o.font
 
           ctx.font = `${o.font}px arial`
@@ -137,32 +136,5 @@ export default class GameObject {
     }
 
     return false
-  }
-
-  /**
-   *
-   * @param {Event} e input event
-   */
-  handleInput(e) {
-    console.log(this.type)
-
-    switch (e.which) {
-      case 1: // mouse left click
-        break
-      case 37: // arrow left
-      case 65: // a
-        break
-      case 38: // arrow up
-      case 87: // w
-        break
-      case 39: // arrow right
-      case 68: // d
-        break
-      case 40: // arrow down
-      case 83: // s
-        break
-      default:
-        break
-    }
   }
 }

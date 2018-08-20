@@ -1,5 +1,4 @@
 import FAMILIES from './families.js'
-import GameObject from './gameObject.js'
 import SCENES from './scenes.js'
 import SHAPE_TYPES from './shapeTypes.js'
 
@@ -22,14 +21,6 @@ export default class Game {
     this.ctx.canvas.width = width
     this.ctx.canvas.height = height
     container.appendChild(this.ctx.canvas)
-
-    // keep track of time in frames
-    // this.lastTime = performance.now()
-    // this.dt = 0
-
-    // set static props
-    GameObject.S_W = width
-    GameObject.S_H = height
 
     // initial vars
     this.store = { currentScene: 0, objects: SCENES[0] }
@@ -55,11 +46,7 @@ export default class Game {
   /**
    * Main game draw loop
    */
-  redraw(/* timestamp */) {
-    // calculate time difference since last frame
-    // if (!this.lastTime) this.lastTime = timestamp
-    // this.dt = this.lastTime - timestamp
-
+  redraw() {
     // update state
     this.updateState()
 
@@ -91,9 +78,11 @@ export default class Game {
         // update object props
       }
     }
+
     // TODO: implement bullet movement/collision
     // TODO: implement alien movement/collision
     // TODO: check collision for hero object
+
     // update input controlled objects
     if (this.keyState[1]) {
       // mouse click
@@ -140,23 +129,11 @@ export default class Game {
   handleInput(e) {
     e.preventDefault()
 
-    switch (e.type) {
-      case 'keydown':
-        this.keyState[e.which] = true
-        break
-      case 'keyup':
-        this.keyState[e.which] = false
-        break
-      case 'mousedown':
-        this.keyState[e.which] = true
-        break
-      case 'mouseup':
-      default:
-        this.keyState[e.which] = false
-        break
+    if (e.type.indexOf('down') > -1) {
+      this.keyState[e.which] = true
+    } else {
+      this.keyState[e.which] = false
     }
-
-    return false
   }
 
   getCollideAbleObjects() {
