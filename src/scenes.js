@@ -18,7 +18,6 @@ const SCENES = [
     new GameObject({
       type: SHAPE_TYPES.RECT,
       family: FAMILIES.HERO,
-      name: 'TopWall',
       x: 3,
       y: 3,
       w: 4,

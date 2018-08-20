@@ -1,6 +1,7 @@
 import FAMILIES from './families.js'
 import GameObject from './gameObject.js'
 import SCENES from './scenes.js'
+import SHAPE_TYPES from './shapeTypes.js'
 
 /**
  * Game
@@ -16,10 +17,6 @@ export default class Game {
    * @param {String} assets.url url of asset
    */
   constructor(container, width, height, assets) {
-    // options
-    this.w = width
-    this.h = height
-
     // create canvas
     this.ctx = document.createElement('canvas').getContext('2d')
     this.ctx.canvas.width = width
@@ -31,10 +28,8 @@ export default class Game {
     // this.dt = 0
 
     // set static props
-    // this.ctx.strokeStyle = 'black'
-    GameObject.S_W = this.w
-    GameObject.S_H = this.h
-    // GameObject.CTX = this.ctx
+    GameObject.S_W = width
+    GameObject.S_H = height
 
     // initial vars
     this.store = { currentScene: 0, objects: SCENES[0] }
@@ -44,8 +39,13 @@ export default class Game {
       this.assets = assets
 
       // input handling
-      this.ctx.canvas.addEventListener('click', e => this.handleInput(e))
+      this.ctx.canvas.addEventListener('mousedown', e => this.handleInput(e))
+      this.ctx.canvas.addEventListener('mouseup', e => this.handleInput(e))
       document.addEventListener('keydown', e => this.handleInput(e))
+      document.addEventListener('keyup', e => this.handleInput(e))
+
+      // track key pressed at any time
+      this.keyState = {}
 
       // start game loop
       this.redraw()
@@ -82,12 +82,41 @@ export default class Game {
   updateState() {
     /** @type {Array<GameObject>} */
     const gameObjects = this.getCollideAbleObjects()
+    const hero = gameObjects.filter(o => o.family === FAMILIES.HERO)[0]
 
+    // updates based on dx, dx
     for (let i = 0; i < gameObjects.length; i += 1) {
       for (let j = i + 1; j < gameObjects.length; j += 1) {
         const hasCollided = gameObjects[i].isColliding(gameObjects[j])
         // update object props
       }
+    }
+    // TODO: implement bullet movement/collision
+    // TODO: implement alien movement/collision
+    // TODO: check collision for hero object
+    // update input controlled objects
+    if (this.keyState[1]) {
+      // mouse click
+    }
+
+    if (this.keyState[37] || this.keyState[65]) {
+      // arrow left
+      hero.x -= 1
+    }
+
+    if (this.keyState[38] || this.keyState[87]) {
+      // arrow up
+      hero.y -= 1
+    }
+
+    if (this.keyState[39] || this.keyState[68]) {
+      // arrow right
+      hero.x += 1
+    }
+
+    if (this.keyState[40] || this.keyState[83]) {
+      // arrow down
+      hero.y += 1
     }
   }
 
@@ -95,65 +124,36 @@ export default class Game {
    * clear canvas
    */
   clear() {
-    this.ctx.clearRect(0, 0, this.w, this.h)
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
   }
 
   /**
    * draw all game objects in current frame
    */
   draw() {
-    // sort by zIndx and draw
+    // sort by zIndex and call draw for each object
     this.store.objects.sort((a, b) => a.zIndex - b.zIndex).forEach(o => {
       o.draw(this.ctx)
     })
   }
 
-  /**
-   * Handles mouse and keyboard input
-   * @param {Event} e Input event
-   */
   handleInput(e) {
     e.preventDefault()
 
-    function update(o, i) {
-      const increment = i || 1
-
-      switch (e.which) {
-        case 1: // mouse left click
-          break
-        case 37: // arrow left
-        case 65: // a
-          o.x -= increment
-          break
-        case 38: // arrow up
-        case 87: // w
-          o.y -= increment
-          break
-        case 39: // arrow right
-        case 68: // d
-          o.x += increment
-          break
-        case 40: // arrow down
-        case 83: // s
-          o.y += increment
-          break
-        default:
-          break
-      }
-    }
-
-    /** @type {Array<GameObject>} */
-    const gameObjects = this.getCollideAbleObjects()
-    /** @type {GameObject} */
-    const hero = gameObjects.filter(o => o.family === FAMILIES.HERO)[0]
-
-    // update hero position
-    update(hero)
-    if (
-      gameObjects.some(o => hero.isColliding(o) && o.family !== FAMILIES.HERO)
-    ) {
-      // revert update if collision detected
-      update(hero, -1)
+    switch (e.type) {
+      case 'keydown':
+        this.keyState[e.which] = true
+        break
+      case 'keyup':
+        this.keyState[e.which] = false
+        break
+      case 'mousedown':
+        this.keyState[e.which] = true
+        break
+      case 'mouseup':
+      default:
+        this.keyState[e.which] = false
+        break
     }
 
     return false
@@ -162,21 +162,16 @@ export default class Game {
   getCollideAbleObjects() {
     /** @type {Array<GameObject>} */
     const gameObjects = this.store.objects
-      .filter(
-        o =>
-          o.family === FAMILIES.ALIEN ||
-          o.family === FAMILIES.BULLET ||
-          o.family === FAMILIES.HERO ||
-          o.family === FAMILIES.WALL
-      )
+      .filter(o => o.type !== SHAPE_TYPES.TEXT)
       // convert nested group into flat array
       .reduce((prev, cur) => {
         prev.push(cur)
 
-        cur.children.forEach(c => {
-          c.x += cur.x
-          c.y += cur.y
-          prev.push(c)
+        cur.children.filter(o => o.type !== SHAPE_TYPES.TEXT).forEach(c => {
+          const copy = Object.create(c)
+          copy.x += cur.x
+          copy.y += cur.y
+          prev.push(copy)
         })
 
         return prev
