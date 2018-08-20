@@ -6,25 +6,29 @@ import SHAPE_TYPES from './shapeTypes.js'
 export default class GameObject {
   /**
    *
-   * @param {Array<GameObject>?} options.children GameObject children grouped with this object and drawn relativety to this parent
+   * @param {Array<GameObject>} options.children GameObject children grouped with this object and drawn relativety to this parent
    * @param {HTMLImageElement} options.img Image element
+   * @param {Number} options.dx speed across x-axis
+   * @param {Number} options.dy speed across y-axis
    * @param {Number} options.h height
    * @param {Number} options.w width
    * @param {Number} options.x x posititon of object
    * @param {Number} options.y y position of object
+   * @param {Number} options.zIndex index level of object to draw, higher index means object will be on top
    * @param {Object} options Options object containing necessary props for drawing
    * @param {Object} options.family family of object
-   * @param {String?} options.fill fill style
-   * @param {String?} options.font font style & family
-   * @param {String?} options.name name
+   * @param {String} options.fill fill style
+   * @param {String} options.font font style & family
+   * @param {String} options.name name
    * @param {String} options.text text
    * @param {String} options.type draw type of object i.e. rect, circle, image
-   * @param {Number} options.zIndex index level of object to draw, higher index means object will be on top
    */
   constructor(options) {
     // children grouped with this object and drawn relativety to this parent
     /** @type {Array<GameObject>} */
     this.children = options.children || []
+    this.dx = options.dx
+    this.dy = options.dy
     this.family = options.family || FAMILIES.WALL
     this.fill = options.fill || '#000'
     this.font = options.font || 6
@@ -109,7 +113,7 @@ export default class GameObject {
 
   /**
    * Detect if two objects are on-screen and colliding
-   * @param {GameObject} object Object
+   * @param {GameObject} o Object
    * @returns {Boolean} Returns true if collision is detected
    */
   isColliding(o) {

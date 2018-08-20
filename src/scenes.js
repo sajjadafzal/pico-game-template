@@ -1,6 +1,6 @@
 import GameObject from './gameObject.js'
 import SHAPE_TYPES from './shapeTypes.js'
-import FAMILIES from './families.js'
+// import FAMILIES from './families.js'
 
 /*
   Scenes:
@@ -17,14 +17,21 @@ const SCENES = [
   [
     new GameObject({
       type: SHAPE_TYPES.RECT,
-      family: FAMILIES.HERO,
-      x: 3,
-      y: 3,
-      w: 4,
-      h: 4,
-      zIndex: 999,
-      fill: 'green',
+      x: 0,
+      y: 0,
+      w: 100,
+      h: 100,
     }),
+    new GameObject({
+      type: SHAPE_TYPES.TEXT,
+      text: 'Level One',
+      x: 25,
+      y: 25,
+      fill: 'yellow',
+      font: 10,
+    }),
+  ],
+  [
     new GameObject({
       type: SHAPE_TYPES.RECT,
       name: 'TopWall',
@@ -183,23 +190,6 @@ const SCENES = [
       y: 65,
       w: 20,
       fill: 'blue',
-    }),
-  ],
-  [
-    new GameObject({
-      type: SHAPE_TYPES.RECT,
-      x: 0,
-      y: 0,
-      w: 100,
-      h: 100,
-    }),
-    new GameObject({
-      type: SHAPE_TYPES.TEXT,
-      text: 'Level One',
-      x: 25,
-      y: 25,
-      fill: 'yellow',
-      font: 10,
     }),
   ],
 ]
