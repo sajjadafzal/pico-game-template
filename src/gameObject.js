@@ -11,6 +11,7 @@ export default class GameObject {
    * @param {Number} options.dx speed across x-axis
    * @param {Number} options.dy speed across y-axis
    * @param {Number} options.h height
+   * @param {Number} options.hp health points
    * @param {Number} options.w width
    * @param {Number} options.x x posititon of object
    * @param {Number} options.y y position of object
@@ -33,6 +34,7 @@ export default class GameObject {
     this.fill = options.fill
     this.font = options.font || 6
     this.h = options.h || 2
+    this.hp = options.hp
     this.img = options.img
     this.name = options.name
     this.text = options.text

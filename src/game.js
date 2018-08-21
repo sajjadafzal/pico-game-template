@@ -17,6 +17,9 @@ export default class Game {
    * @param {String} assets.url url of asset
    */
   constructor(container, width, height, assets) {
+    // game assets
+    this.assets = assets
+
     // create canvas
     this.ctx = document.createElement('canvas').getContext('2d')
     this.ctx.canvas.width = this.w = width
@@ -36,18 +39,19 @@ export default class Game {
     // create a hero object
     /** @type {GameObject} */
     this.hero = new GameObject({
+      type: SHAPE_TYPES.IMAGE,
       family: FAMILIES.HERO,
       x: 4,
       y: 4,
       w: 4,
       h: 4,
       zIndex: 999,
+      hp: 100,
+      img: this.assets.hero,
     })
 
     // track key pressed at any time
     this.keyState = {}
-    // game assets
-    this.assets = assets
 
     // input handling
     this.ctx.canvas.addEventListener('click', e => this.handleInput(e))
@@ -189,8 +193,8 @@ export default class Game {
         x: x - 1 + this.hero.w / 2 + dx * 3,
         y: y - 1 + this.hero.h / 2 + dy * 3,
         fill: 'red',
-        dx: diffX / dist,
-        dy: diffY / dist,
+        dx,
+        dy,
       })
     )
   }
@@ -209,6 +213,8 @@ export default class Game {
             const copy = Object.create(c)
             copy.x += cur.x
             copy.y += cur.y
+            // add parent ref to child
+            // opy.parent = cur
             prev.push(copy)
           })
 
