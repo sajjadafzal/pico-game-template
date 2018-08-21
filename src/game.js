@@ -1,3 +1,4 @@
+import DIRECTIONS from './directions.js'
 import FAMILIES from './families.js'
 import GameObject from './gameObject.js'
 import SCENES from './scenes.js'
@@ -40,13 +41,14 @@ export default class Game {
     /** @type {GameObject} */
     this.hero = new GameObject({
       family: FAMILIES.HERO,
-      x: 4,
+      x: 48,
       y: 4,
       w: 4,
       h: 4,
       zIndex: 999,
       hp: 100,
       img: this.assets.hero,
+      dir: DIRECTIONS.BOTTOM,
     })
 
     // track key pressed at any time
@@ -139,7 +141,7 @@ export default class Game {
             target.family === FAMILIES.ALIEN
           ) {
             // deduct some health
-            target.hp -= 10
+            target.hp -= b.dmg
           }
         }
       })
@@ -206,12 +208,14 @@ export default class Game {
 
     this.bullets.push(
       new GameObject({
+        type: SHAPE_TYPES.CIRCLE,
         family: FAMILIES.BULLET,
         x: x - 1 + this.hero.w / 2 + dx * 3,
         y: y - 1 + this.hero.h / 2 + dy * 3,
         fill: 'red',
         dx,
         dy,
+        dmg: 10,
       })
     )
   }

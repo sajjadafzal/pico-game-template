@@ -8,6 +8,8 @@ export default class GameObject {
    *
    * @param {Array<GameObject>} options.children GameObject children grouped with this object and drawn relativety to this parent
    * @param {HTMLImageElement} options.img Image element
+   * @param {Number} options.dir direction
+   * @param {Number} options.dmg bullet damage to target
    * @param {Number} options.dx speed across x-axis
    * @param {Number} options.dy speed across y-axis
    * @param {Number} options.h height
@@ -28,6 +30,8 @@ export default class GameObject {
     // children grouped with this object and drawn relativety to this parent
     /** @type {Array<GameObject>} */
     this.children = options.children || []
+    this.dir = options.dir
+    this.dmg = options.dmg
     this.dx = options.dx
     this.dy = options.dy
     this.family = options.family || FAMILIES.WALL
@@ -73,6 +77,7 @@ export default class GameObject {
       o.h *= SCALE_Y
 
       ctx.fillStyle = this.family === FAMILIES.WALL ? 'blue' : o.fill || '#000'
+      ctx.beginPath()
 
       switch (o.type) {
         case SHAPE_TYPES.CIRCLE:
@@ -80,12 +85,10 @@ export default class GameObject {
           o.x += o.w / 2
           o.y += o.w / 2
 
-          ctx.beginPath()
           ctx.arc(o.x, o.y, o.w / 2, 0, Math.PI * 2, 0)
           ctx.fill()
           break
         case SHAPE_TYPES.RECT:
-          ctx.beginPath()
           ctx.rect(o.x, o.y, o.w, o.h)
           ctx.fill()
 
@@ -96,9 +99,8 @@ export default class GameObject {
           }
           break
         case SHAPE_TYPES.TEXT:
-          ctx.beginPath()
           // scale font
-          o.font *= SCALE_X / 100
+          o.font *= SCALE_Y / 100
           // add font height to text shape to correct x,y
           o.y += o.font
 

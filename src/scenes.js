@@ -30,20 +30,16 @@ const SCENES = [
   ],
   [
     new GameObject({
-      name: 'TopWall',
       w: 100,
     }),
     new GameObject({
-      name: 'LeftWall',
       y: 98,
       w: 100,
     }),
     new GameObject({
-      name: 'RightWall',
       h: 100,
     }),
     new GameObject({
-      name: 'BottomWall',
       x: 98,
       h: 100,
     }),
