@@ -39,7 +39,6 @@ export default class Game {
     // create a hero object
     /** @type {GameObject} */
     this.hero = new GameObject({
-      type: SHAPE_TYPES.IMAGE,
       family: FAMILIES.HERO,
       x: 4,
       y: 4,
@@ -76,9 +75,12 @@ export default class Game {
     this.draw()
 
     // redraw loop
-    window.requestAnimationFrame(() => {
-      this.redraw()
-    })
+    // DEBUG: remove this timeout debug code
+    window.setTimeout(() => {
+      window.requestAnimationFrame(() => {
+        this.redraw()
+      })
+    }, 0)
   }
 
   /**
@@ -87,32 +89,29 @@ export default class Game {
   updateState() {
     /** @type {Array<GameObject>} */
     const gameObjects = this.getObjects()
-    const heroClone = Object.create(this.hero)
-    const heroSpeed = 0.25
+    const HERO_SPEED = 0.25
+    let heroClone = Object.create(this.hero)
 
     // update input controlled objects
     if (this.keyState[37] || this.keyState[65]) {
       // arrow left
-      heroClone.x -= heroSpeed
+      heroClone.x -= HERO_SPEED
     }
 
     if (this.keyState[38] || this.keyState[87]) {
       // arrow up
-      heroClone.y -= heroSpeed
+      heroClone.y -= HERO_SPEED
     }
 
     if (this.keyState[39] || this.keyState[68]) {
       // arrow right
-      heroClone.x += heroSpeed
+      heroClone.x += HERO_SPEED
     }
 
     if (this.keyState[40] || this.keyState[83]) {
       // arrow down
-      heroClone.y += heroSpeed
+      heroClone.y += HERO_SPEED
     }
-
-    // if heroClone has no collision update hero
-    if (!gameObjects.some(o => heroClone.isColliding(o))) this.hero = heroClone
 
     // update bullets
     this.bullets.forEach(b => {
@@ -120,16 +119,34 @@ export default class Game {
       b.y += b.dy
     })
 
-    /*
-    // updates based on dx, dx
     for (let i = 0; i < gameObjects.length; i += 1) {
-      for (let j = i + 1; j < gameObjects.length; j += 1) {
-        const hasCollided = gameObjects[i].isColliding(gameObjects[j])
-        // TODO: implement alien movement/collision
-        // TODO: implement bullet collision
+      const target = gameObjects[i]
+
+      // check hero collision
+      if (heroClone.isColliding(target)) {
+        heroClone = this.hero
       }
+
+      // update bullets & check collision
+      this.bullets.forEach((b, i) => {
+        // check colliding
+        if (b.isColliding(target)) {
+          // remove bullet from collection
+          this.bullets.splice(i, 1)
+          // check if target is alive
+          if (
+            target.family === FAMILIES.HERO ||
+            target.family === FAMILIES.ALIEN
+          ) {
+            // deduct some health
+            target.hp -= 10
+          }
+        }
+      })
     }
-    */
+
+    // update hero position
+    this.hero = heroClone
   }
 
   /**
