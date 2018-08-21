@@ -119,29 +119,11 @@ export default class GameObject {
    * @returns {Boolean} Returns true if collision is detected
    */
   isColliding(o) {
-    // TODO: re-implement collision detection: use inverse method
-    if (
-      (this.x > o.x && this.x < o.x + o.w) ||
-      (this.x + this.w > o.x && this.x + this.w < o.x + o.w)
-    ) {
-      if (
-        (this.y > o.y && this.y < o.y + o.h) ||
-        (this.y + this.h > o.y && this.y + this.h < o.y + o.h)
-      )
-        return true
-    }
+    if (this.x + this.w < o.x) return false
+    if (this.x > o.x + o.w) return false
+    if (this.y + this.h < o.y) return false
+    if (this.y > o.y + o.h) return false
 
-    if (
-      (o.x > this.x && o.x < this.x + this.w) ||
-      (o.x + o.w > this.x && o.x + o.w < this.x + this.w)
-    ) {
-      if (
-        (o.y > this.y && o.y < this.y + this.h) ||
-        (o.y + o.h > this.y && o.y + o.h < this.y + this.h)
-      )
-        return true
-    }
-
-    return false
+    return true
   }
 }
