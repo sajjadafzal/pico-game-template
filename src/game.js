@@ -36,7 +36,6 @@ export default class Game {
     // create a hero object
     /** @type {GameObject} */
     this.hero = new GameObject({
-      type: SHAPE_TYPES.RECT,
       family: FAMILIES.HERO,
       x: 4,
       y: 4,
@@ -85,26 +84,27 @@ export default class Game {
     /** @type {Array<GameObject>} */
     const gameObjects = this.getObjects()
     const heroClone = Object.create(this.hero)
+    const heroSpeed = 0.25
 
     // update input controlled objects
     if (this.keyState[37] || this.keyState[65]) {
       // arrow left
-      heroClone.x -= 0.25
+      heroClone.x -= heroSpeed
     }
 
     if (this.keyState[38] || this.keyState[87]) {
       // arrow up
-      heroClone.y -= 0.25
+      heroClone.y -= heroSpeed
     }
 
     if (this.keyState[39] || this.keyState[68]) {
       // arrow right
-      heroClone.x += 0.25
+      heroClone.x += heroSpeed
     }
 
     if (this.keyState[40] || this.keyState[83]) {
       // arrow down
-      heroClone.y += 0.25
+      heroClone.y += heroSpeed
     }
 
     // if heroClone has no collision update hero
@@ -122,7 +122,7 @@ export default class Game {
       for (let j = i + 1; j < gameObjects.length; j += 1) {
         const hasCollided = gameObjects[i].isColliding(gameObjects[j])
         // TODO: implement alien movement/collision
-        // TODO: implement bullet movement/collision
+        // TODO: implement bullet collision
       }
     }
     */
@@ -161,32 +161,38 @@ export default class Game {
     e.preventDefault()
 
     if (e.which === 1) {
-      if (this.currentScene === 1) {
-        const coords = this.ctx.canvas.getBoundingClientRect()
-        const { x, y } = this.hero
-        const x1 = e.clientX - coords.left / (this.w / 100)
-        const y1 = e.clientY - coords.top / (this.h / 100)
-
-        // TODO: get/set dx, dy for bullet direction
-        console.log(x, y, x1, y1)
-
-        this.bullets.push(
-          new GameObject({
-            type: SHAPE_TYPES.CIRCLE,
-            family: FAMILIES.BULLET,
-            x: x - 1 + this.hero.w / 2,
-            y: y - 1 + this.hero.h / 2,
-            fill: 'red',
-            dx: 1,
-            dy: 1,
-          })
-        )
-      }
+      if (this.currentScene === 1) this.addBullet(e)
     } else if (e.type.indexOf('down') > -1) {
       this.keyState[e.which] = e
     } else {
       this.keyState[e.which] = false
     }
+  }
+
+  /**
+   *sdsdsd
+   */
+  addBullet(e) {
+    const coords = this.ctx.canvas.getBoundingClientRect()
+    const { x, y } = this.hero
+    const x1 = ((e.clientX - coords.left) * 100) / this.w
+    const y1 = ((e.clientY - coords.top) * 100) / this.h
+    const diffX = x1 - x
+    const diffY = y1 - y
+    const dist = Math.sqrt(diffX ** 2 + diffY ** 2)
+    const dx = diffX / dist
+    const dy = diffY / dist
+
+    this.bullets.push(
+      new GameObject({
+        family: FAMILIES.BULLET,
+        x: x - 1 + this.hero.w / 2 + dx * 3,
+        y: y - 1 + this.hero.h / 2 + dy * 3,
+        fill: 'red',
+        dx: diffX / dist,
+        dy: diffY / dist,
+      })
+    )
   }
 
   /**

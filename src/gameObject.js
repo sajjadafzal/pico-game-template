@@ -30,7 +30,7 @@ export default class GameObject {
     this.dx = options.dx
     this.dy = options.dy
     this.family = options.family || FAMILIES.WALL
-    this.fill = options.fill || '#000'
+    this.fill = options.fill
     this.font = options.font || 6
     this.h = options.h || 2
     this.img = options.img
@@ -38,8 +38,8 @@ export default class GameObject {
     this.text = options.text
     this.type = options.type || SHAPE_TYPES.RECT
     this.w = options.w || 2
-    this.x = options.x
-    this.y = options.y
+    this.x = options.x || 0
+    this.y = options.y || 0
     this.zIndex = options.zIndex || 1
   }
 
@@ -70,7 +70,7 @@ export default class GameObject {
       o.w *= SCALE_X
       o.h *= SCALE_Y
 
-      ctx.fillStyle = o.fill
+      ctx.fillStyle = this.family === FAMILIES.WALL ? 'blue' : o.fill || '#000'
 
       switch (o.type) {
         case SHAPE_TYPES.CIRCLE:
