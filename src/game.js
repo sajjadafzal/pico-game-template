@@ -1,4 +1,3 @@
-import DIRECTIONS from './directions.js'
 import FAMILIES from './families.js'
 import GameObject from './gameObject.js'
 import SCENES from './scenes.js'
@@ -13,9 +12,9 @@ export default class Game {
    * @param {HTMLElement} container Container for game canvas
    * @param {Number} width widht of game canvas
    * @param {Number} height height of game canvas
-   * @param {String[]} assets assets urls to load {name, url}
+   * @param {Array<Object>} assets assets urls to load {name, media}
    * @param {String} assets.name name of asset
-   * @param {String} assets.url url of asset
+   * @param {HTMLImageElement|HTMLAudioElement} assets.media image or audio
    */
   constructor(container, width, height, assets) {
     // game assets
@@ -40,15 +39,13 @@ export default class Game {
     // create a hero object
     /** @type {GameObject} */
     this.hero = new GameObject({
+      // TODO: use sprite
       family: FAMILIES.HERO,
+      h: 6,
+      hp: 100,
+      w: 6,
       x: 48,
       y: 4,
-      w: 4,
-      h: 4,
-      zIndex: 999,
-      hp: 100,
-      img: this.assets.hero,
-      dir: DIRECTIONS.BOTTOM,
     })
 
     // track key pressed at any time
@@ -82,7 +79,7 @@ export default class Game {
       window.requestAnimationFrame(() => {
         this.redraw()
       })
-    }, 0)
+    }, 250)
   }
 
   /**
@@ -90,9 +87,10 @@ export default class Game {
    */
   updateState() {
     /** @type {Array<GameObject>} */
-    const gameObjects = this.getObjects()
-    const HERO_SPEED = 0.25
+    const gameObjects = this.getObjects().concat([this.hero])
+    /** @type {GameObject} */
     let heroClone = Object.create(this.hero)
+    const HERO_SPEED = 0.25
 
     // update input controlled objects
     if (this.keyState[37] || this.keyState[65]) {
@@ -125,23 +123,22 @@ export default class Game {
       const target = gameObjects[i]
 
       // check hero collision
-      if (heroClone.isColliding(target)) {
+      if (target.family !== FAMILIES.HERO && heroClone.isColliding(target)) {
         heroClone = this.hero
       }
 
       // update bullets & check collision
       this.bullets.forEach((b, i) => {
-        // check colliding
-        if (b.isColliding(target)) {
-          // remove bullet from collection
-          this.bullets.splice(i, 1)
-          // check if target is alive
-          if (
-            target.family === FAMILIES.HERO ||
-            target.family === FAMILIES.ALIEN
-          ) {
-            // deduct some health
+        if (
+          (b.byHero && target.family !== FAMILIES.HERO) ||
+          (!b.byHero && target.family !== FAMILIES.ALIEN)
+        ) {
+          // check colliding
+          if (b.isColliding(target)) {
             target.hp -= b.dmg
+
+            // remove bullet from collection
+            this.bullets.splice(i, 1)
           }
         }
       })
@@ -193,29 +190,59 @@ export default class Game {
   }
 
   /**
-   *sdsdsd
+   * Add bullet to the collection
+   * @param {Event?} e Click Event
+   * @param {GameObject} o Source Game Object
    */
-  addBullet(e) {
-    const coords = this.ctx.canvas.getBoundingClientRect()
-    const { x, y } = this.hero
-    const x1 = ((e.clientX - coords.left) * 100) / this.w
-    const y1 = ((e.clientY - coords.top) * 100) / this.h
+  addBullet(e, o) {
+    let x
+    let y
+    let x1
+    let y1
+    // check if bullet is fired by hero
+    let byHero = true
+
+    // check if source is click event or computer enemy
+    if (e) {
+      const coords = this.ctx.canvas.getBoundingClientRect()
+      x = this.hero.x
+      y = this.hero.y
+      x1 = ((e.clientX - coords.left) * 100) / this.w
+      y1 = ((e.clientY - coords.top) * 100) / this.h
+    } else {
+      x = o.x
+      y = o.y
+      x1 = this.hero.x
+      y1 = this.hero.y
+
+      byHero = false
+    }
+
+    // find the speed
     const diffX = x1 - x
     const diffY = y1 - y
     const dist = Math.sqrt(diffX ** 2 + diffY ** 2)
     const dx = diffX / dist
     const dy = diffY / dist
 
+    // find initial positon of bullet
+    x = x - 1 + this.hero.w / 2 // + dx * (this.hero.w / 1.25)
+    y = y - 1 + this.hero.h / 2 // + dy * (this.hero.h / 1.25)
+
+    // add bullet to collection
     this.bullets.push(
       new GameObject({
-        type: SHAPE_TYPES.CIRCLE,
-        family: FAMILIES.BULLET,
-        x: x - 1 + this.hero.w / 2 + dx * 3,
-        y: y - 1 + this.hero.h / 2 + dy * 3,
-        fill: 'red',
+        dmg: 10,
         dx,
         dy,
-        dmg: 10,
+        family: FAMILIES.BULLET,
+        fill: 'red',
+        h: 1,
+        type: SHAPE_TYPES.CIRCLE,
+        w: 1,
+        x,
+        y,
+        byHero,
       })
     )
   }

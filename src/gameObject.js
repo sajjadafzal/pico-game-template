@@ -1,5 +1,6 @@
 import FAMILIES from './families.js'
 import SHAPE_TYPES from './shapeTypes.js'
+
 /**
  * GameObject
  */
@@ -25,6 +26,7 @@ export default class GameObject {
    * @param {String} options.name name
    * @param {String} options.text text
    * @param {String} options.type draw type of object i.e. rect, circle, image
+   * @param {Boolean} options.byHero
    */
   constructor(options) {
     // children grouped with this object and drawn relativety to this parent
@@ -47,6 +49,14 @@ export default class GameObject {
     this.x = options.x || 0
     this.y = options.y || 0
     this.zIndex = options.zIndex || 1
+    this.byHero = options.byHero
+
+    if (this.family === FAMILIES.HERO) {
+      this.x = 48
+      this.y = 4
+      this.w = 6
+      this.h = 6
+    }
   }
 
   /**

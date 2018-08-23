@@ -1,7 +1,7 @@
 import GameObject from './gameObject.js'
 import SHAPE_TYPES from './shapeTypes.js'
 // import FAMILIES from './families.js'
-
+// TODO: add ememies
 /*
   Scenes:
   0: menu
