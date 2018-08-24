@@ -45,7 +45,7 @@ export default class Game {
       hp: 100,
       w: 6,
       x: 45,
-      y: 80,
+      y: 5,
       fill: 'green',
     })
 
@@ -76,11 +76,11 @@ export default class Game {
 
     // redraw loop
     // DEBUG: remove this timeout debug code
-    // window.setTimeout(() => {
-    window.requestAnimationFrame(() => {
-      this.redraw()
-    })
-    // }, 250)
+    window.setTimeout(() => {
+      window.requestAnimationFrame(() => {
+        this.redraw()
+      })
+    }, 0)
   }
 
   /**
@@ -126,20 +126,24 @@ export default class Game {
       const timeNow = Date.now()
       const target = gameObjects[i]
 
+      // ignore text shape
       if (target.type === SHAPE_TYPES.TEXT) continue
 
       // check hero collision
       if (target.family === FAMILIES.WALL && heroClone.isColliding(target)) {
         heroClone = this.hero
-      } else if (
-        target.family === FAMILIES.ALIEN &&
-        this.hero.chp > 0 &&
-        timeNow - target.lastFireTime > 1000
-      ) {
-        this.addBullet(null, target)
-        target.lastFireTime = timeNow
+      } else if (target.family === FAMILIES.ALIEN && this.hero.chp > 0) {
+        const delay = target.isInLineOfSight ? 750 : 100
+
+        // fire tracer bullets after 100ms
+        // fire bullets after 750ms
+        if (timeNow - target.lastFireTime > delay) {
+          this.addBullet(null, target)
+          target.lastFireTime = timeNow
+        }
       }
 
+      // TODO: rewrite this part
       // update bullets & check collision
       this.bullets.forEach((b, index) => {
         if (
@@ -148,12 +152,22 @@ export default class Game {
         ) {
           // check colliding
           if (b.isColliding(target)) {
-            // add dmg to target
-            if (target.chp) target.chp -= b.dmg
+            if (!b.isReal && target.family === FAMILIES.HERO) {
+              b.src.isInLineOfSight = true
+              b.src.lastFireTime = 0
+            } else {
+              // If
+              if (target.family !== FAMILIES.HERO) {
+                b.src.isInLineOfSight = false
+              }
 
-            // remove target if health is zero
-            if (target.chp <= 0) {
-              killedGameObjects.push(target.id)
+              // add dmg to target
+              if (target.chp) target.chp -= b.dmg
+
+              // remove target if health is zero
+              if (target.chp <= 0) {
+                killedGameObjects.push(target.id)
+              }
             }
 
             // remove bullet from collection
@@ -267,6 +281,8 @@ export default class Game {
         w: 1,
         x,
         y,
+        src: e ? this.hero : o,
+        isReal: e ? true : o.isInLineOfSight,
       })
     )
   }

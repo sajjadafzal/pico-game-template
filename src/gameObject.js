@@ -51,6 +51,9 @@ export default class GameObject {
     this.byHero = options.byHero
     this.lastFireTime = 0
 
+    this.isInLineOfSight = options.isInLineOfSight
+    this.isReal = options.isReal
+    this.src = options.src
     this.chp = this.hp
     // assign id
     // eslint-disable-next-line
@@ -94,7 +97,8 @@ export default class GameObject {
 
           ctx.beginPath()
           ctx.arc(o.x, o.y, o.w / 2, 0, Math.PI * 2, 0)
-          ctx.fill()
+          // only render real bullets
+          if (o.isReal) ctx.fill()
           break
         case SHAPE_TYPES.RECT:
           ctx.fillRect(o.x, o.y, o.w, o.h)
