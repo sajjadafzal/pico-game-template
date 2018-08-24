@@ -1,7 +1,9 @@
 import GameObject from './gameObject.js'
 import SHAPE_TYPES from './shapeTypes.js'
-// import FAMILIES from './families.js'
-// TODO: add ememies
+import FAMILIES from './families.js'
+
+// TODO: add ememy AI
+
 /*
   Scenes:
   0: menu
@@ -29,6 +31,45 @@ const SCENES = [
     }),
   ],
   [
+    // enemies
+    new GameObject({
+      family: FAMILIES.ALIEN,
+      hp: 200,
+      h: 5,
+      w: 5,
+      y: 93,
+      x: 30,
+      fill: 'red',
+    }),
+    new GameObject({
+      family: FAMILIES.ALIEN,
+      hp: 150,
+      h: 5,
+      w: 5,
+      y: 93,
+      x: 40,
+      fill: 'orangered',
+    }),
+    new GameObject({
+      family: FAMILIES.ALIEN,
+      hp: 100,
+      h: 5,
+      w: 5,
+      y: 93,
+      x: 50,
+      fill: 'orange',
+    }),
+    new GameObject({
+      family: FAMILIES.ALIEN,
+      hp: 50,
+      h: 5,
+      w: 5,
+      y: 93,
+      x: 60,
+      fill: 'yellow',
+    }),
+    // walls
+    // TODO: use/generate wall texture
     new GameObject({
       w: 100,
     }),

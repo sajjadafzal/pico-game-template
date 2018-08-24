@@ -1,5 +1,6 @@
 const fs = require('fs')
 const zipper = require('zip-local')
+
 const fileName = './build/game.zip'
 
 zipper.sync

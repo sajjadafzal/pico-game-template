@@ -9,7 +9,6 @@ export default class GameObject {
    *
    * @param {Array<GameObject>} options.children GameObject children grouped with this object and drawn relativety to this parent
    * @param {HTMLImageElement} options.img Image element
-   * @param {Number} options.dir direction
    * @param {Number} options.dmg bullet damage to target
    * @param {Number} options.dx speed across x-axis
    * @param {Number} options.dy speed across y-axis
@@ -32,12 +31,11 @@ export default class GameObject {
     // children grouped with this object and drawn relativety to this parent
     /** @type {Array<GameObject>} */
     this.children = options.children || []
-    this.dir = options.dir
     this.dmg = options.dmg
     this.dx = options.dx
     this.dy = options.dy
     this.family = options.family || FAMILIES.WALL
-    this.fill = options.fill
+    this.fill = options.fill || '#000'
     this.font = options.font || 6
     this.h = options.h || 2
     this.hp = options.hp
@@ -51,12 +49,9 @@ export default class GameObject {
     this.zIndex = options.zIndex || 1
     this.byHero = options.byHero
 
-    if (this.family === FAMILIES.HERO) {
-      this.x = 48
-      this.y = 4
-      this.w = 6
-      this.h = 6
-    }
+    // assign id
+    // eslint-disable-next-line
+    this.id = ++GameObject.id
   }
 
   /**
@@ -86,8 +81,7 @@ export default class GameObject {
       o.w *= SCALE_X
       o.h *= SCALE_Y
 
-      ctx.fillStyle = this.family === FAMILIES.WALL ? 'blue' : o.fill || '#000'
-      ctx.beginPath()
+      ctx.fillStyle = o.fill
 
       switch (o.type) {
         case SHAPE_TYPES.CIRCLE:
@@ -95,18 +89,18 @@ export default class GameObject {
           o.x += o.w / 2
           o.y += o.w / 2
 
+          ctx.beginPath()
           ctx.arc(o.x, o.y, o.w / 2, 0, Math.PI * 2, 0)
           ctx.fill()
           break
         case SHAPE_TYPES.RECT:
-          ctx.rect(o.x, o.y, o.w, o.h)
-          ctx.fill()
+          ctx.fillRect(o.x, o.y, o.w, o.h)
 
-          if (o.name) {
-            ctx.font = `8px arial`
-            ctx.fillStyle = 'green'
-            ctx.fillText(o.name, o.x + o.w / 2 + 10, o.y + o.h / 2 - 10)
-          }
+          // if (o.name) {
+          //   ctx.font = `8px arial`
+          //   ctx.fillStyle = 'blue'
+          //   ctx.fillText(o.name, o.x + o.w / 2 + 10, o.y + o.h / 2 - 10)
+          // }
           break
         case SHAPE_TYPES.TEXT:
           // scale font
@@ -121,6 +115,19 @@ export default class GameObject {
         default:
           ctx.drawImage(o.img, o.x, o.y, o.w, o.h)
           break
+      }
+
+      // draw health bar
+      if (o.hp) {
+        ctx.fillStyle = '#fff'
+        ctx.beginPath()
+        ctx.rect(o.x, o.y - 6, o.w, 4)
+        ctx.stroke()
+        ctx.fill()
+
+        ctx.fillStyle = 'green'
+        // TOFIX: scaling for the HP bar
+        ctx.fillRect(o.x, o.y - 6, o.hp, 4)
       }
     })
   }
@@ -139,3 +146,6 @@ export default class GameObject {
     return true
   }
 }
+
+// assign ID to each object
+GameObject.id = 0

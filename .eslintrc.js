@@ -13,6 +13,7 @@ module.exports = {
     'import/extensions': 0,
     'linebreak-style': 0,
     'no-console': process.env.NODE_ENV === 'production' ? 2 : 0,
+    'no-continue': 0,
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     'no-multi-assign': 0,
     'no-new': 0,
