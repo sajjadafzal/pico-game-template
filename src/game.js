@@ -133,10 +133,10 @@ export default class Game {
         heroClone = this.hero
       } else if (
         target.family === FAMILIES.ALIEN &&
-        this.hero.hp > 0 &&
+        this.hero.chp > 0 &&
         timeNow - target.lastFireTime > 1000
       ) {
-        this.addBullet(undefined, target)
+        this.addBullet(null, target)
         target.lastFireTime = timeNow
       }
 
@@ -149,10 +149,10 @@ export default class Game {
           // check colliding
           if (b.isColliding(target)) {
             // add dmg to target
-            if (target.hp) target.hp -= b.dmg
+            if (target.chp) target.chp -= b.dmg
 
             // remove target if health is zero
-            if (target.hp <= 0) {
+            if (target.chp <= 0) {
               killedGameObjects.push(target.id)
             }
 

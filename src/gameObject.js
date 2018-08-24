@@ -38,6 +38,7 @@ export default class GameObject {
     this.fill = options.fill || '#000'
     this.font = options.font || 6
     this.h = options.h || 2
+    this.chp = options.chp
     this.hp = options.hp
     this.img = options.img
     this.name = options.name
@@ -50,6 +51,7 @@ export default class GameObject {
     this.byHero = options.byHero
     this.lastFireTime = 0
 
+    this.chp = this.hp
     // assign id
     // eslint-disable-next-line
     this.id = ++GameObject.id
@@ -128,7 +130,7 @@ export default class GameObject {
 
         ctx.fillStyle = 'green'
         // TOFIX: scaling for the HP bar
-        ctx.fillRect(o.x, o.y - 6, (o.hp * o.w) / 100, 4)
+        ctx.fillRect(o.x, o.y - 6, (o.chp * o.w) / o.hp, 4)
       }
     })
   }
