@@ -48,6 +48,7 @@ export default class GameObject {
     this.y = options.y || 0
     this.zIndex = options.zIndex || 1
     this.byHero = options.byHero
+    this.lastFireTime = 0
 
     // assign id
     // eslint-disable-next-line
@@ -127,7 +128,7 @@ export default class GameObject {
 
         ctx.fillStyle = 'green'
         // TOFIX: scaling for the HP bar
-        ctx.fillRect(o.x, o.y - 6, o.hp, 4)
+        ctx.fillRect(o.x, o.y - 6, (o.hp * o.w) / 100, 4)
       }
     })
   }

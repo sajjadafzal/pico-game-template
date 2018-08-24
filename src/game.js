@@ -123,6 +123,7 @@ export default class Game {
 
     const killedGameObjects = []
     for (let i = 0; i < gameObjects.length; i += 1) {
+      const timeNow = Date.now()
       const target = gameObjects[i]
 
       if (target.type === SHAPE_TYPES.TEXT) continue
@@ -130,9 +131,13 @@ export default class Game {
       // check hero collision
       if (target.family === FAMILIES.WALL && heroClone.isColliding(target)) {
         heroClone = this.hero
-      } else if (target.family === FAMILIES.ALIEN && this.hero.hp > 0) {
-        // TODO: enable
-        // this.addBullet(undefined, target)
+      } else if (
+        target.family === FAMILIES.ALIEN &&
+        this.hero.hp > 0 &&
+        timeNow - target.lastFireTime > 1000
+      ) {
+        this.addBullet(undefined, target)
+        target.lastFireTime = timeNow
       }
 
       // update bullets & check collision
