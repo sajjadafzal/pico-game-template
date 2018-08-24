@@ -1,7 +1,13 @@
 import FAMILIES from './families.js'
 import GameObject from './gameObject.js'
-import SCENES from './scenes.js'
+import LEVEL from './level.js'
 import SHAPE_TYPES from './shapeTypes.js'
+
+const SCREENS = {
+  MAIN_MENU: 'MAIN_MENU',
+  IN_GAME: 'IN_GAME',
+  END_GAME: 'END_GAME',
+}
 
 /**
  * Game
@@ -26,12 +32,16 @@ export default class Game {
     this.ctx.canvas.height = this.h = height
     container.appendChild(this.ctx.canvas)
 
+    // score
+    this.score = 0
+    // level difficulty
+    this.difficulty = 1
     // current scene
-    this.currentScene = 1
+    this.screen = SCREENS.MAIN_MENU
 
     // current scene objects collection
     /** @type {Array<GameObject>} */
-    this.objects = SCENES[1]
+    this.objects = LEVEL
 
     // bullets collection
     /** @type {Array<GameObject>} */
@@ -46,7 +56,6 @@ export default class Game {
       w: 6,
       x: 45,
       y: 5,
-      fill: 'green',
     })
 
     // track key pressed at any time
@@ -75,12 +84,11 @@ export default class Game {
     this.draw()
 
     // redraw loop
-    // DEBUG: remove this timeout debug code
-    window.setTimeout(() => {
-      window.requestAnimationFrame(() => {
-        this.redraw()
-      })
-    }, 0)
+    // window.setTimeout(() => {
+    window.requestAnimationFrame(() => {
+      this.redraw()
+    })
+    // }, 0)
   }
 
   /**
@@ -133,6 +141,7 @@ export default class Game {
       if (target.family === FAMILIES.WALL && heroClone.isColliding(target)) {
         heroClone = this.hero
       } else if (target.family === FAMILIES.ALIEN && this.hero.chp > 0) {
+        // add bullets
         const delay = target.isInLineOfSight ? 750 : 100
 
         // fire tracer bullets after 100ms
@@ -143,38 +152,43 @@ export default class Game {
         }
       }
 
-      // TODO: rewrite this part
-      // update bullets & check collision
-      this.bullets.forEach((b, index) => {
-        if (
-          (b.byHero && target.family !== FAMILIES.HERO) ||
-          (!b.byHero && target.family !== FAMILIES.ALIEN)
-        ) {
-          // check colliding
-          if (b.isColliding(target)) {
-            if (!b.isReal && target.family === FAMILIES.HERO) {
-              b.src.isInLineOfSight = true
-              b.src.lastFireTime = 0
-            } else {
-              // If
-              if (target.family !== FAMILIES.HERO) {
-                b.src.isInLineOfSight = false
-              }
+      for (let j = 0; j < this.bullets.length; j += 1) {
+        const b = this.bullets[j]
 
-              // add dmg to target
-              if (target.chp) target.chp -= b.dmg
+        // disable friendly fire
+        if (
+          (b.byHero && target.family === FAMILIES.HERO) ||
+          (!b.byHero && target.family === FAMILIES.ALIEN) ||
+          !b
+        )
+          continue
+
+        // check bullet collision
+        if (b.isColliding(target)) {
+          if (b.isReal) {
+            if (target.family === FAMILIES.WALL) {
+              b.src.isInLineOfSight = false
+            } else {
+              target.chp -= b.dmg
 
               // remove target if health is zero
               if (target.chp <= 0) {
-                killedGameObjects.push(target.id)
+                if (target.family === FAMILIES.HERO) {
+                  this.screen = SCREENS.END_GAME
+                } else {
+                  killedGameObjects.push(target.id)
+                }
               }
             }
-
-            // remove bullet from collection
-            this.bullets.splice(index, 1)
+          } else if (target.family === FAMILIES.HERO) {
+            b.src.isInLineOfSight = true
+            b.src.lastFireTime = 0
           }
+
+          // remove bullet from collection
+          this.bullets.splice(j, 1)
         }
-      })
+      }
     }
 
     // update hero position
@@ -219,7 +233,9 @@ export default class Game {
     e.preventDefault()
 
     if (e.which === 1) {
-      if (this.currentScene === 1) this.addBullet(e)
+      if (this.screen === SCREENS.MAIN_MENU) this.screen = SCREENS.IN_GAME
+      if (this.screen === SCREENS.IN_GAME) this.addBullet(e)
+      if (this.screen === SCREENS.END_GAME) this.screen = SCREENS.MAIN_MENU
     } else if (e.type.indexOf('down') > -1) {
       this.keyState[e.which] = e
     } else {

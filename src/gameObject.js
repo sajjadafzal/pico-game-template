@@ -7,27 +7,31 @@ import SHAPE_TYPES from './shapeTypes.js'
 export default class GameObject {
   /**
    *
+   * @param {Object} options Options object containing necessary props for drawing
+   * @param {Boolean} options.byHero if the bullet is fired by hero
    * @param {Array<GameObject>} options.children GameObject children grouped with this object and drawn relativety to this parent
-   * @param {HTMLImageElement} options.img Image element
    * @param {Number} options.dmg bullet damage to target
    * @param {Number} options.dx speed across x-axis
    * @param {Number} options.dy speed across y-axis
+   * @param {Object} options.family family of object
+   * @param {String} options.fill fill style
+   * @param {String} options.font font style & family
    * @param {Number} options.h height
    * @param {Number} options.hp health points
+   * @param {Boolean} options.isInLineOfSight true if this object is in line of sight of hero
+   * @param {Boolean} options.isReal true if the bullet is real false for tracer bullets
+   * @param {Number} options.lastFireTime time recorded when last bullet was fired by this object
+   * @param {String} options.name name
+   * @param {GameObject} options.src Source of this object
+   * @param {String} options.text text
+   * @param {String} options.type draw type of object i.e. rect, circle, image
    * @param {Number} options.w width
    * @param {Number} options.x x posititon of object
    * @param {Number} options.y y position of object
    * @param {Number} options.zIndex index level of object to draw, higher index means object will be on top
-   * @param {Object} options Options object containing necessary props for drawing
-   * @param {Object} options.family family of object
-   * @param {String} options.fill fill style
-   * @param {String} options.font font style & family
-   * @param {String} options.name name
-   * @param {String} options.text text
-   * @param {String} options.type draw type of object i.e. rect, circle, image
-   * @param {Boolean} options.byHero
    */
   constructor(options) {
+    this.byHero = options.byHero
     // children grouped with this object and drawn relativety to this parent
     /** @type {Array<GameObject>} */
     this.children = options.children || []
@@ -38,22 +42,21 @@ export default class GameObject {
     this.fill = options.fill || '#000'
     this.font = options.font || 6
     this.h = options.h || 2
-    this.chp = options.chp
     this.hp = options.hp
-    this.img = options.img
+    this.isInLineOfSight = false
+    this.isReal = options.isReal
+    this.lastFireTime = 0
     this.name = options.name
+    /** @type {GameObject} */
+    this.src = options.src
     this.text = options.text
     this.type = options.type || SHAPE_TYPES.RECT
     this.w = options.w || 2
     this.x = options.x || 0
     this.y = options.y || 0
     this.zIndex = options.zIndex || 1
-    this.byHero = options.byHero
-    this.lastFireTime = 0
 
-    this.isInLineOfSight = options.isInLineOfSight
-    this.isReal = options.isReal
-    this.src = options.src
+    // set current hp to full hp
     this.chp = this.hp
     // assign id
     // eslint-disable-next-line
@@ -65,6 +68,9 @@ export default class GameObject {
    * @param {CanvasRenderingContext2D} ctx Game canvas 2d context
    */
   draw(ctx) {
+    // only render real bullets
+    if (this.isReal === false) return
+
     const SCALE_X = ctx.canvas.width / 100
     const SCALE_Y = ctx.canvas.height / 100
 
@@ -97,8 +103,7 @@ export default class GameObject {
 
           ctx.beginPath()
           ctx.arc(o.x, o.y, o.w / 2, 0, Math.PI * 2, 0)
-          // only render real bullets
-          if (o.isReal) ctx.fill()
+          ctx.fill()
           break
         case SHAPE_TYPES.RECT:
           ctx.fillRect(o.x, o.y, o.w, o.h)
@@ -120,7 +125,7 @@ export default class GameObject {
           break
         case SHAPE_TYPES.IMAGE:
         default:
-          ctx.drawImage(o.img, o.x, o.y, o.w, o.h)
+          // TODO: implement sprites
           break
       }
 
@@ -133,7 +138,6 @@ export default class GameObject {
         ctx.fill()
 
         ctx.fillStyle = 'green'
-        // TOFIX: scaling for the HP bar
         ctx.fillRect(o.x, o.y - 6, (o.chp * o.w) / o.hp, 4)
       }
     })
