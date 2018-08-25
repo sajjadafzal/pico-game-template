@@ -100,7 +100,12 @@ export default class Game {
 
     /** @type {GameObject} */
     let heroClone = Object.create(this.hero)
-    const HERO_SPEED = 0.33
+    let HERO_SPEED = 0.33
+
+    // reduce diagonal speed
+    if (Object.values(this.keyState).filter(k => k).length > 1) {
+      HERO_SPEED /= 1.5
+    }
 
     // update input controlled objects
     if (this.keyState[37] || this.keyState[65]) {
@@ -131,7 +136,6 @@ export default class Game {
 
     const killedGameObjects = []
     for (let i = 0; i < gameObjects.length; i += 1) {
-      const timeNow = Date.now()
       const target = gameObjects[i]
 
       // ignore text shape
@@ -140,18 +144,9 @@ export default class Game {
       // check hero collision
       if (target.family === FAMILIES.WALL && heroClone.isColliding(target)) {
         heroClone = this.hero
-      } else if (target.family === FAMILIES.ALIEN && this.hero.chp > 0) {
-        // add bullets
-        const delay = target.isInLineOfSight ? 750 : 100
-
-        // fire tracer bullets after 100ms
-        // fire bullets after 750ms
-        if (timeNow - target.lastFireTime > delay) {
-          this.addBullet(null, target)
-          target.lastFireTime = timeNow
-        }
       }
 
+      // check bullet collision
       for (let j = 0; j < this.bullets.length; j += 1) {
         const b = this.bullets[j]
 
@@ -171,6 +166,10 @@ export default class Game {
             } else {
               target.chp -= b.dmg
 
+              if (target.family === FAMILIES.HERO) {
+                b.src.lastFireTime = Date.now()
+              }
+
               // remove target if health is zero
               if (target.chp <= 0) {
                 if (target.family === FAMILIES.HERO) {
@@ -187,6 +186,19 @@ export default class Game {
 
           // remove bullet from collection
           this.bullets.splice(j, 1)
+        }
+      }
+
+      // add bullets
+      if (target.family === FAMILIES.ALIEN && this.hero.chp > 0) {
+        const delay = target.isInLineOfSight ? 750 : 100
+        const timeNow = Date.now()
+
+        // fire tracer bullets after 100ms
+        // fire bullets after 750ms
+        if (timeNow - target.lastFireTime > delay) {
+          this.addBullet(null, target)
+          target.lastFireTime = timeNow
         }
       }
     }
