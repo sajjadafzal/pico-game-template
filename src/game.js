@@ -32,6 +32,8 @@ export default class Game {
     this.ctx.canvas.height = this.h = height
     container.appendChild(this.ctx.canvas)
 
+    // top score of current session
+    this.topScore = 0
     // score
     this.score = 0
     // level difficulty
@@ -74,14 +76,20 @@ export default class Game {
    * Main game draw loop
    */
   redraw() {
-    // update state
-    this.updateState()
+    if (this.screen === SCREENS.MAIN_MENU) {
+      // TODO: draw main menu
+    } else if (this.screen === SCREENS.END_GAME) {
+      // TODO: draw end game menu
+    } else {
+      // update state
+      this.updateState()
 
-    // clear previous frame
-    this.clear()
+      // clear previous frame
+      this.clear()
 
-    // draw current frame
-    this.draw()
+      // draw current frame
+      this.draw()
+    }
 
     // redraw loop
     // window.setTimeout(() => {
@@ -207,9 +215,27 @@ export default class Game {
     this.hero = heroClone
 
     // remove objects with zero HP
-    this.objects = this.objects.filter(
-      o => killedGameObjects.indexOf(o.id) === -1
-    )
+    this.objects = this.objects.filter(o => {
+      if (killedGameObjects.indexOf(o.id) > -1) {
+        // add score of each enemy
+        this.score += o.hp * this.difficulty
+        return false
+      }
+
+      return true
+    })
+
+    // update difficulty if all enemies dead
+    if (this.objects.filter(o => o.family === FAMILIES.ALIEN).length === 0) {
+      // increase difficulty
+      this.difficulty += 1
+      // reset hero
+      this.hero.x = 45
+      this.hero.y = 5
+      this.hero.hp = 100
+      // reset level
+      this.objects = LEVEL
+    }
   }
 
   /**
@@ -245,9 +271,24 @@ export default class Game {
     e.preventDefault()
 
     if (e.which === 1) {
-      if (this.screen === SCREENS.MAIN_MENU) this.screen = SCREENS.IN_GAME
-      if (this.screen === SCREENS.IN_GAME) this.addBullet(e)
-      if (this.screen === SCREENS.END_GAME) this.screen = SCREENS.MAIN_MENU
+      if (this.screen === SCREENS.MAIN_MENU) {
+        // reset game objects
+        this.screen = SCREENS.IN_GAME
+        this.objects = LEVEL
+        this.hero.hp = 100
+        this.hero.x = 45
+        this.hero.y = 5
+      } else if (this.screen === SCREENS.IN_GAME) {
+        this.addBullet(e)
+      } else if (this.screen === SCREENS.END_GAME) {
+        this.screen = SCREENS.MAIN_MENU
+
+        // update top score
+        if (this.score > this.topScore) {
+          this.topScore = this.score
+          this.score = 0
+        }
+      }
     } else if (e.type.indexOf('down') > -1) {
       this.keyState[e.which] = e
     } else {
