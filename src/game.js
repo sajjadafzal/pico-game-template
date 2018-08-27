@@ -1,6 +1,13 @@
 import FAMILIES from './families.js'
 import GameObject from './gameObject.js'
-import SCENES from './scenes.js'
+import LEVEL from './level.js'
+import SHAPE_TYPES from './shapeTypes.js'
+
+const SCREENS = {
+  MAIN_MENU: 'MAIN_MENU',
+  IN_GAME: 'IN_GAME',
+  END_GAME: 'END_GAME',
+}
 
 /**
  * Game
@@ -11,97 +18,223 @@ export default class Game {
    * @param {HTMLElement} container Container for game canvas
    * @param {Number} width widht of game canvas
    * @param {Number} height height of game canvas
-   * @param {String[]} assets assets urls to load {name, url}
+   * @param {Array<Object>} assets assets urls to load {name, media}
    * @param {String} assets.name name of asset
-   * @param {String} assets.url url of asset
+   * @param {HTMLImageElement|HTMLAudioElement} assets.media image or audio
    */
   constructor(container, width, height, assets) {
-    // options
-    this.w = width
-    this.h = height
+    // game assets
+    this.assets = assets
 
     // create canvas
     this.ctx = document.createElement('canvas').getContext('2d')
-    this.ctx.canvas.width = width
-    this.ctx.canvas.height = height
+    this.ctx.canvas.width = this.w = width
+    this.ctx.canvas.height = this.h = height
     container.appendChild(this.ctx.canvas)
 
-    // keep track of time in frames
-    // this.lastTime = performance.now()
-    // this.dt = 0
+    // top score of current session
+    this.topScore = 0
+    // score
+    this.score = 0
+    // level difficulty
+    this.difficulty = 1
+    // current scene
+    this.screen = SCREENS.MAIN_MENU
 
-    // set static props
-    // this.ctx.strokeStyle = 'black'
-    GameObject.S_W = this.w
-    GameObject.S_H = this.h
-    // GameObject.CTX = this.ctx
+    // current scene objects collection
+    /** @type {Array<GameObject>} */
+    this.objects = LEVEL
 
-    // initial vars
-    this.store = { currentScene: 0, objects: SCENES[0] }
+    // bullets collection
+    /** @type {Array<GameObject>} */
+    this.bullets = []
 
-    // load all assets
-    Game.loadAssets(assets).then(assets => {
-      this.assets = assets
-
-      // input handling
-      this.ctx.canvas.addEventListener('click', e => this.handleInput(e))
-      document.addEventListener('keydown', e => this.handleInput(e))
-
-      // start game loop
-      this.redraw()
+    // create a hero object
+    /** @type {GameObject} */
+    this.hero = new GameObject({
+      family: FAMILIES.HERO,
+      h: 6,
+      hp: 100,
+      w: 6,
+      x: 45,
+      y: 5,
     })
+
+    // track key pressed at any time
+    this.keyState = {}
+
+    // input handling
+    this.ctx.canvas.addEventListener('click', e => this.handleInput(e))
+    document.addEventListener('keydown', e => this.handleInput(e))
+    document.addEventListener('keyup', e => this.handleInput(e))
+
+    // start game loop
+    this.redraw()
   }
 
   /**
    * Main game draw loop
    */
-  redraw(/* timestamp */) {
-    // calculate time difference since last frame
-    // if (!this.lastTime) this.lastTime = timestamp
-    // this.dt = this.lastTime - timestamp
+  redraw() {
+    if (this.screen === SCREENS.MAIN_MENU) {
+      // TODO: draw main menu
+    } else if (this.screen === SCREENS.END_GAME) {
+      // TODO: draw end game menu
+    } else {
+      // update state
+      this.updateState()
 
-    // update state
-    this.updateState()
+      // clear previous frame
+      this.clear()
 
-    // clear previous frame
-    this.clear()
-
-    // draw current frame
-    this.draw()
+      // draw current frame
+      this.draw()
+    }
 
     // redraw loop
+    // window.setTimeout(() => {
     window.requestAnimationFrame(() => {
       this.redraw()
     })
+    // }, 0)
   }
 
   /**
    * update game state variables
-   * @param {Number} dt Time in seconds since last update
    */
   updateState() {
-    // only dynamically update alien && bullet
     /** @type {Array<GameObject>} */
-    const gameObjects = this.store.objects
-      .filter(o => o.family === FAMILIES.ALIEN || o.family === FAMILIES.BULLET)
-      // convert nested group into flat array
-      .reduce((prev, cur) => {
-        prev.push(cur)
+    const gameObjects = this.getObjects().concat([this.hero])
 
-        cur.children.forEach(c => {
-          c.x += cur.x
-          c.y += cur.y
-          prev.push(c)
-        })
+    /** @type {GameObject} */
+    let heroClone = Object.create(this.hero)
+    let HERO_SPEED = 0.33
 
-        return prev
-      }, [])
+    // reduce diagonal speed
+    if (Object.values(this.keyState).filter(k => k).length > 1) {
+      HERO_SPEED /= 1.5
+    }
 
+    // update input controlled objects
+    if (this.keyState[37] || this.keyState[65]) {
+      // arrow left
+      heroClone.x -= HERO_SPEED
+    }
+
+    if (this.keyState[38] || this.keyState[87]) {
+      // arrow up
+      heroClone.y -= HERO_SPEED
+    }
+
+    if (this.keyState[39] || this.keyState[68]) {
+      // arrow right
+      heroClone.x += HERO_SPEED
+    }
+
+    if (this.keyState[40] || this.keyState[83]) {
+      // arrow down
+      heroClone.y += HERO_SPEED
+    }
+
+    // update bullets
+    this.bullets.forEach(b => {
+      b.x += b.dx
+      b.y += b.dy
+    })
+
+    const killedGameObjects = []
     for (let i = 0; i < gameObjects.length; i += 1) {
-      for (let j = i + 1; j < gameObjects.length; j += 1) {
-        const hasCollided = gameObjects[i].isColliding(gameObjects[j])
-        // update object props
+      const target = gameObjects[i]
+
+      // ignore text shape
+      if (target.type === SHAPE_TYPES.TEXT) continue
+
+      // check hero collision
+      if (target.family === FAMILIES.WALL && heroClone.isColliding(target)) {
+        heroClone = this.hero
       }
+
+      // check bullet collision
+      for (let j = 0; j < this.bullets.length; j += 1) {
+        const b = this.bullets[j]
+
+        // disable friendly fire
+        if (
+          (b.byHero && target.family === FAMILIES.HERO) ||
+          (!b.byHero && target.family === FAMILIES.ALIEN) ||
+          !b
+        )
+          continue
+
+        // check bullet collision
+        if (b.isColliding(target)) {
+          if (b.isReal) {
+            if (target.family === FAMILIES.WALL) {
+              b.src.isInLineOfSight = false
+            } else {
+              target.chp -= b.dmg
+
+              if (target.family === FAMILIES.HERO) {
+                b.src.lastFireTime = Date.now()
+              }
+
+              // remove target if health is zero
+              if (target.chp <= 0) {
+                if (target.family === FAMILIES.HERO) {
+                  this.screen = SCREENS.END_GAME
+                } else {
+                  killedGameObjects.push(target.id)
+                }
+              }
+            }
+          } else if (target.family === FAMILIES.HERO) {
+            b.src.isInLineOfSight = true
+            b.src.lastFireTime = 0
+          }
+
+          // remove bullet from collection
+          this.bullets.splice(j, 1)
+        }
+      }
+
+      // add bullets
+      if (target.family === FAMILIES.ALIEN && this.hero.chp > 0) {
+        const delay = target.isInLineOfSight ? 750 : 100
+        const timeNow = Date.now()
+
+        // fire tracer bullets after 100ms
+        // fire bullets after 750ms
+        if (timeNow - target.lastFireTime > delay) {
+          this.addBullet(null, target)
+          target.lastFireTime = timeNow
+        }
+      }
+    }
+
+    // update hero position
+    this.hero = heroClone
+
+    // remove objects with zero HP
+    this.objects = this.objects.filter(o => {
+      if (killedGameObjects.indexOf(o.id) > -1) {
+        // add score of each enemy
+        this.score += o.hp * this.difficulty
+        return false
+      }
+
+      return true
+    })
+
+    // update difficulty if all enemies dead
+    if (this.objects.filter(o => o.family === FAMILIES.ALIEN).length === 0) {
+      // increase difficulty
+      this.difficulty += 1
+      // reset hero
+      this.hero.x = 45
+      this.hero.y = 5
+      this.hero.hp = 100
+      // reset level
+      this.objects = LEVEL
     }
   }
 
@@ -109,74 +242,142 @@ export default class Game {
    * clear canvas
    */
   clear() {
-    this.ctx.clearRect(0, 0, this.w, this.h)
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
   }
 
   /**
    * draw all game objects in current frame
    */
   draw() {
-    // sort by zIndx and draw
-    this.store.objects.sort((a, b) => a.zIndex - b.zIndex).forEach(o => {
+    // draw bullets
+    this.bullets.forEach(b => {
+      b.draw(this.ctx)
+    })
+
+    // sort by zIndex and call draw for each object
+    this.objects.sort((a, b) => a.zIndex - b.zIndex).forEach(o => {
       o.draw(this.ctx)
     })
+
+    // draw hero
+    this.hero.draw(this.ctx)
   }
 
   /**
-   * Handles mouse and keyboard input
-   * @param {Event} e Input event
+   * Handle events
+   * @param {Event} e keyboard or mouse event
    */
   handleInput(e) {
     e.preventDefault()
 
-    if (e.which === 1 && this.store.currentScene === 0) {
-      this.store.currentScene = 1
-      ;[, this.store.objects] = SCENES
+    if (e.which === 1) {
+      if (this.screen === SCREENS.MAIN_MENU) {
+        // reset game objects
+        this.screen = SCREENS.IN_GAME
+        this.objects = LEVEL
+        this.hero.hp = 100
+        this.hero.x = 45
+        this.hero.y = 5
+      } else if (this.screen === SCREENS.IN_GAME) {
+        this.addBullet(e)
+      } else if (this.screen === SCREENS.END_GAME) {
+        this.screen = SCREENS.MAIN_MENU
+
+        // update top score
+        if (this.score > this.topScore) {
+          this.topScore = this.score
+          this.score = 0
+        }
+      }
+    } else if (e.type.indexOf('down') > -1) {
+      this.keyState[e.which] = e
     } else {
-      // only hero should handle input
-      this.store.objects.filter(o => o.family === FAMILIES.HERO).forEach(o => {
-        o.handleInput(e)
-      })
+      this.keyState[e.which] = false
     }
-    return false
   }
 
   /**
-   *  Loads the provided list of assets and return the ready to use list
-   * @param {Array<Object>} arr Assets array to load
-   * @returns {Array<Object>} Collection of loaded results
+   * Add bullet to the collection
+   * @param {Event?} e Click Event
+   * @param {GameObject} o Source Game Object
    */
-  static loadAssets(assets) {
-    const promises = []
+  addBullet(e, o) {
+    let x
+    let y
+    let x1
+    let y1
+    // check if bullet is fired by hero
+    let byHero = true
 
-    assets.forEach(a => {
-      promises.push(
-        new Promise(resolve => {
-          const ext = a.url.split('.').slice(-1)[0]
-          if (ext === 'jpg') {
-            // load image
-            const img = new Image()
-            img.onload = () => {
-              resolve({
-                name: a.name,
-                media: img,
-              })
-            }
-            img.src = a.url
-          } else {
-            // load sound
-            const audio = new Audio(a.url)
-            audio.oncanplay = () => {
-              resolve({
-                name: a.name,
-                media: audio,
-              })
-            }
-          }
-        })
-      )
-    })
+    // check if source is click event or computer enemy
+    if (e) {
+      const coords = this.ctx.canvas.getBoundingClientRect()
+      x = this.hero.x
+      y = this.hero.y
+      x1 = -this.w / 100 + ((e.clientX - coords.left) * 100) / this.w
+      y1 = -this.h / 100 + ((e.clientY - coords.top) * 100) / this.h
+    } else {
+      x = o.x
+      y = o.y
+      x1 = this.hero.x
+      y1 = this.hero.y
 
-    return Promise.all(promises)
+      byHero = false
+    }
+
+    // find the speed
+    const diffX = x1 - x
+    const diffY = y1 - y
+    const dist = Math.sqrt(diffX ** 2 + diffY ** 2)
+    const dx = (diffX / dist) * 1.5
+    const dy = (diffY / dist) * 1.5
+
+    // find initial positon of bullet
+    x += this.hero.w / 2 // + dx * (this.hero.w / 1.25)
+    y += this.hero.h / 2 // + dy * (this.hero.h / 1.25)
+
+    // add bullet to collection
+    this.bullets.push(
+      new GameObject({
+        byHero,
+        dmg: 10,
+        dx,
+        dy,
+        family: FAMILIES.BULLET,
+        fill: 'red',
+        h: 1,
+        type: SHAPE_TYPES.CIRCLE,
+        w: 1,
+        x,
+        y,
+        src: e ? this.hero : o,
+        isReal: e ? true : o.isInLineOfSight,
+      })
+    )
+  }
+
+  /**
+   * Returns all shapes as flat array (except text ones)
+   */
+  getObjects() {
+    return (
+      this.objects
+        // convert nested group into flat array
+        .reduce((prev, cur) => {
+          prev.push(cur)
+
+          cur.children.forEach(c => {
+            const copy = Object.create(c)
+            copy.x += cur.x
+            copy.y += cur.y
+            // add parent ref to child
+            // opy.parent = cur
+            prev.push(copy)
+          })
+
+          return prev
+        }, [])
+      // .filter(o => o.type !== SHAPE_TYPES.TEXT)
+    )
   }
 }
