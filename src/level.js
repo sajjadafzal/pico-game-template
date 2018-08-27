@@ -11,7 +11,7 @@ const LEVEL = [
     hp: 200,
     h: 5,
     w: 5,
-    y: 93,
+    y: 90,
     x: 30,
   }),
   new GameObject({
@@ -19,7 +19,7 @@ const LEVEL = [
     hp: 150,
     h: 5,
     w: 5,
-    y: 93,
+    y: 90,
     x: 40,
   }),
   new GameObject({
@@ -27,7 +27,7 @@ const LEVEL = [
     hp: 100,
     h: 5,
     w: 5,
-    y: 93,
+    y: 90,
     x: 50,
   }),
   new GameObject({
@@ -35,24 +35,28 @@ const LEVEL = [
     hp: 50,
     h: 5,
     w: 5,
-    y: 93,
+    y: 90,
     x: 60,
   }),
   // walls
   // TODO: use/generate wall texture
   new GameObject({
     w: 100,
+    fill: '#000',
   }),
   new GameObject({
     y: 98,
     w: 100,
+    fill: '#000',
   }),
   new GameObject({
     h: 100,
+    fill: '#000',
   }),
   new GameObject({
     x: 98,
     h: 100,
+    fill: '#000',
   }),
   new GameObject({
     name: 'L270',

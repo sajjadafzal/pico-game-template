@@ -244,6 +244,12 @@ export default class Game {
    * draw all game objects in current frame
    */
   draw() {
+    // add floor
+    this.addFlooring()
+
+    // add lighting
+    this.addLighting()
+
     // draw bullets
     this.bullets.forEach(b => {
       b.draw(this.ctx)
@@ -261,20 +267,49 @@ export default class Game {
     this.drawHUD()
   }
 
-  drawHUD() {
-    const font = (4 * this.h) / 100
+  addFlooring() {
+    const step = 10
 
-    this.ctx.fillStyle = '#ff00ff'
+    this.ctx.lineWidth = 1
+    this.ctx.strokeStyle = 'rgba(1,14,4,0.25)'
+    this.ctx.beginPath()
+
+    for (let i = 0; i < this.w - 0; i += step) {
+      for (let j = 0; j < this.h - 0; j += step) {
+        this.ctx.rect(i, j, step, step)
+      }
+    }
+
+    this.ctx.stroke()
+  }
+
+  addLighting() {
+    const x = this.w / 2
+    const y = this.h / 2
+
+    let gradient = this.ctx.createRadialGradient(x, y, 0, x, y, 300)
+    gradient.addColorStop(0, 'rgba(17,102,37,0.75)')
+    gradient.addColorStop(1, 'rgba(1,14,4,1)')
+    this.ctx.fillStyle = gradient
+
+    this.ctx.arc(x, y, this.w * 2, 0, 2 * Math.PI)
+    this.ctx.fill()
+  }
+
+  drawHUD() {
+    const font = (3.5 * this.h) / 100
+
+    this.ctx.fillStyle = 'rgba(1,14,4,0.5)'
     this.ctx.fillRect(0, 0, this.w, 50)
 
     this.ctx.font = `${font}px arial`
     this.ctx.fillStyle = '#fff'
     this.ctx.fillText(
-      `Score: ${this.score}   Level: ${this.difficulty}   Health: ${
+      `Score: ${this.score}         Level: ${this.difficulty}         Health: ${
         this.hero.chp
-      }   Top Score: ${this.topScore}`,
-      40,
-      30
+      }         Top Score: ${this.topScore}`,
+      25,
+      33
     )
   }
 

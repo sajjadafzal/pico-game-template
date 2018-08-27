@@ -78,7 +78,7 @@ export default class GameObject {
       case FAMILIES.BULLET:
         this.byHero = options.byHero
         this.dmg = options.dmg || 10
-        this.fill = 'red'
+        this.fill = 'orange'
         this.w = 1
         this.h = 1
         this.type = SHAPE_TYPES.CIRCLE
@@ -86,6 +86,9 @@ export default class GameObject {
 
         /** @type {GameObject} */
         this.src = options.src
+        break
+      case FAMILIES.WALL:
+        this.fill = options.fill || '#fff'
         break
       default:
         break
@@ -101,7 +104,7 @@ export default class GameObject {
     if (this.isReal === false) return
 
     const SCALE_X = ctx.canvas.width / 100
-    const SCALE_Y = ctx.canvas.height / 100
+    const SCALE_Y = (ctx.canvas.height - 50) / 100 // deduct HUD space
 
     // clone this and each children into new array and update coordinates
     /** @type {Array<GameObject>} */
@@ -121,6 +124,9 @@ export default class GameObject {
       o.y *= SCALE_Y
       o.w *= SCALE_X
       o.h *= SCALE_Y
+
+      // move each object 50px down for HUD
+      o.y += 50
 
       ctx.strokeStyle = '#000'
       ctx.fillStyle = o.fill
@@ -161,7 +167,7 @@ export default class GameObject {
 
       // draw health bar
       if (o.hp) {
-        ctx.fillStyle = 'green'
+        ctx.fillStyle = '#00e635'
         ctx.fillRect(o.x, o.y - 6, (o.chp * o.w) / o.hp, 4)
       }
     })
