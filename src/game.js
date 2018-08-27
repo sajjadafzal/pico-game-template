@@ -268,10 +268,10 @@ export default class Game {
   }
 
   addFlooring() {
-    const step = 10
+    const step = 20
 
     this.ctx.lineWidth = 1
-    this.ctx.strokeStyle = 'rgba(1,14,4,0.25)'
+    this.ctx.strokeStyle = 'rgba(1,14,4,0.2)'
     this.ctx.beginPath()
 
     for (let i = 0; i < this.w - 0; i += step) {
@@ -287,8 +287,8 @@ export default class Game {
     const x = this.w / 2
     const y = this.h / 2
 
-    let gradient = this.ctx.createRadialGradient(x, y, 0, x, y, 300)
-    gradient.addColorStop(0, 'rgba(17,102,37,0.75)')
+    let gradient = this.ctx.createRadialGradient(x, y, 50, x, y, this.w - 100)
+    gradient.addColorStop(0, 'rgba(17,102,37,0.9)')
     gradient.addColorStop(1, 'rgba(1,14,4,1)')
     this.ctx.fillStyle = gradient
 
