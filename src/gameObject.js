@@ -31,36 +31,65 @@ export default class GameObject {
    * @param {Number} options.zIndex index level of object to draw, higher index means object will be on top
    */
   constructor(options) {
-    this.byHero = options.byHero
     // children grouped with this object and drawn relativety to this parent
     /** @type {Array<GameObject>} */
     this.children = options.children || []
-    this.dmg = options.dmg
     this.dx = options.dx
     this.dy = options.dy
-    this.family = options.family || FAMILIES.WALL
     this.fill = options.fill || '#000'
-    this.font = options.font || 6
     this.h = options.h || 2
-    this.hp = options.hp
-    this.isInLineOfSight = false
-    this.isReal = options.isReal
-    this.lastFireTime = 0
     this.name = options.name
-    /** @type {GameObject} */
-    this.src = options.src
     this.text = options.text
-    this.type = options.type || SHAPE_TYPES.RECT
     this.w = options.w || 2
     this.x = options.x || 0
     this.y = options.y || 0
     this.zIndex = options.zIndex || 1
 
-    // set current hp to full hp
-    this.chp = this.hp
     // assign id
     // eslint-disable-next-line
     this.id = ++GameObject.id
+
+    // set defauilt family as wall (if not text)
+    if (this.text) {
+      this.font = options.font || 4
+      this.text = options.text
+      this.type = SHAPE_TYPES.TEXT
+    } else {
+      this.family = options.family || FAMILIES.WALL
+      this.type = options.type || SHAPE_TYPES.RECT
+    }
+
+    switch (this.family) {
+      case FAMILIES.HERO:
+        this.x = 45
+        this.y = 5
+      // eslint-disable-no-fallthrough
+      case FAMILIES.ALIEN:
+        this.w = 6
+        this.h = 6
+        this.chp = options.hp || 100
+        this.hp = this.chp
+        this.isInLineOfSight = false
+        this.lastFireTime = 0
+        break
+      // case FAMILIES.WALL:
+      //  this.type = options.type || SHAPE_TYPES.RECT
+      // break
+      case FAMILIES.BULLET:
+        this.byHero = options.byHero
+        this.dmg = options.dmg || 10
+        this.fill = 'red'
+        this.w = 1
+        this.h = 1
+        this.type = SHAPE_TYPES.CIRCLE
+        this.isReal = options.isReal
+
+        /** @type {GameObject} */
+        this.src = options.src
+        break
+      default:
+        break
+    }
   }
 
   /**
@@ -116,7 +145,7 @@ export default class GameObject {
           break
         case SHAPE_TYPES.TEXT:
           // scale font
-          o.font *= SCALE_Y / 100
+          o.font *= SCALE_Y
           // add font height to text shape to correct x,y
           o.y += o.font
 

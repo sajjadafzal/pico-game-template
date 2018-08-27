@@ -39,7 +39,7 @@ export default class Game {
     // level difficulty
     this.difficulty = 1
     // current scene
-    this.screen = SCREENS.MAIN_MENU
+    this.screen = SCREENS.IN_GAME
 
     // current scene objects collection
     /** @type {Array<GameObject>} */
@@ -53,11 +53,36 @@ export default class Game {
     /** @type {GameObject} */
     this.hero = new GameObject({
       family: FAMILIES.HERO,
-      h: 6,
-      hp: 100,
-      w: 6,
-      x: 45,
-      y: 5,
+    })
+
+    // HUD
+    this.hud = new GameObject({
+      w: 100,
+      h: 8,
+      fill: 'rgba(0,0,255,0.25)',
+      children: [
+        new GameObject({
+          x: 5,
+          y: 2,
+          type: SHAPE_TYPES.TEXT,
+          text: `Level : ${this.difficulty}`,
+          fill: 'blue',
+        }),
+        new GameObject({
+          x: 25,
+          y: 2,
+          text: `Score: ${this.score}`,
+          type: SHAPE_TYPES.TEXT,
+          fill: 'blue',
+        }),
+        new GameObject({
+          x: 74,
+          y: 2,
+          type: SHAPE_TYPES.TEXT,
+          text: `Top Score: ${this.topScore}`,
+          fill: 'blue',
+        }),
+      ],
     })
 
     // track key pressed at any time
@@ -76,16 +101,16 @@ export default class Game {
    * Main game draw loop
    */
   redraw() {
+    // clear previous frame
+    this.clear()
+
     if (this.screen === SCREENS.MAIN_MENU) {
-      // TODO: draw main menu
+      this.drawMenu()
     } else if (this.screen === SCREENS.END_GAME) {
-      // TODO: draw end game menu
+      this.drawEnd()
     } else {
       // update state
       this.updateState()
-
-      // clear previous frame
-      this.clear()
 
       // draw current frame
       this.draw()
@@ -96,7 +121,7 @@ export default class Game {
     window.requestAnimationFrame(() => {
       this.redraw()
     })
-    // }, 0)
+    // }, 2000)
   }
 
   /**
@@ -229,12 +254,12 @@ export default class Game {
     if (this.objects.filter(o => o.family === FAMILIES.ALIEN).length === 0) {
       // increase difficulty
       this.difficulty += 1
-      // reset hero
+      // reset game objects
+      this.screen = SCREENS.IN_GAME
+      this.objects = LEVEL
+      this.hero.chp = 100
       this.hero.x = 45
       this.hero.y = 5
-      this.hero.hp = 100
-      // reset level
-      this.objects = LEVEL
     }
   }
 
@@ -261,6 +286,18 @@ export default class Game {
 
     // draw hero
     this.hero.draw(this.ctx)
+
+    // draw hud
+    this.hud.draw(this.ctx)
+  }
+
+  drawMenu() {
+    // this.
+    // TODO: implement menu drawing
+  }
+
+  drawEnd() {
+    // TODO: implement game end drawing
   }
 
   /**
@@ -275,7 +312,7 @@ export default class Game {
         // reset game objects
         this.screen = SCREENS.IN_GAME
         this.objects = LEVEL
-        this.hero.hp = 100
+        this.hero.chp = 100
         this.hero.x = 45
         this.hero.y = 5
       } else if (this.screen === SCREENS.IN_GAME) {
@@ -340,14 +377,9 @@ export default class Game {
     this.bullets.push(
       new GameObject({
         byHero,
-        dmg: 10,
         dx,
         dy,
         family: FAMILIES.BULLET,
-        fill: 'red',
-        h: 1,
-        type: SHAPE_TYPES.CIRCLE,
-        w: 1,
         x,
         y,
         src: e ? this.hero : o,
