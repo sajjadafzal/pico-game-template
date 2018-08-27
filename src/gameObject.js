@@ -67,8 +67,8 @@ export default class GameObject {
       case FAMILIES.ALIEN:
         this.w = 6
         this.h = 6
-        this.chp = options.hp || 100
-        this.hp = this.chp
+        this.hp = options.hp || 100
+        this.chp = this.hp
         this.isInLineOfSight = false
         this.lastFireTime = 0
         break
@@ -122,6 +122,7 @@ export default class GameObject {
       o.w *= SCALE_X
       o.h *= SCALE_Y
 
+      ctx.strokeStyle = '#000'
       ctx.fillStyle = o.fill
 
       switch (o.type) {
@@ -160,12 +161,6 @@ export default class GameObject {
 
       // draw health bar
       if (o.hp) {
-        ctx.fillStyle = '#fff'
-        ctx.beginPath()
-        ctx.rect(o.x, o.y - 6, o.w, 4)
-        ctx.stroke()
-        ctx.fill()
-
         ctx.fillStyle = 'green'
         ctx.fillRect(o.x, o.y - 6, (o.chp * o.w) / o.hp, 4)
       }

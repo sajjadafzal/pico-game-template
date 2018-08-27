@@ -55,36 +55,6 @@ export default class Game {
       family: FAMILIES.HERO,
     })
 
-    // HUD
-    this.hud = new GameObject({
-      w: 100,
-      h: 8,
-      fill: 'rgba(0,0,255,0.25)',
-      children: [
-        new GameObject({
-          x: 5,
-          y: 2,
-          type: SHAPE_TYPES.TEXT,
-          text: `Level : ${this.difficulty}`,
-          fill: 'blue',
-        }),
-        new GameObject({
-          x: 25,
-          y: 2,
-          text: `Score: ${this.score}`,
-          type: SHAPE_TYPES.TEXT,
-          fill: 'blue',
-        }),
-        new GameObject({
-          x: 74,
-          y: 2,
-          type: SHAPE_TYPES.TEXT,
-          text: `Top Score: ${this.topScore}`,
-          fill: 'blue',
-        }),
-      ],
-    })
-
     // track key pressed at any time
     this.keyState = {}
 
@@ -199,10 +169,6 @@ export default class Game {
             } else {
               target.chp -= b.dmg
 
-              if (target.family === FAMILIES.HERO) {
-                b.src.lastFireTime = Date.now()
-              }
-
               // remove target if health is zero
               if (target.chp <= 0) {
                 if (target.family === FAMILIES.HERO) {
@@ -210,6 +176,10 @@ export default class Game {
                 } else {
                   killedGameObjects.push(target.id)
                 }
+              }
+
+              if (target.family === FAMILIES.HERO) {
+                b.src.lastFireTime = Date.now()
               }
             }
           } else if (target.family === FAMILIES.HERO) {
@@ -224,7 +194,7 @@ export default class Game {
 
       // add bullets
       if (target.family === FAMILIES.ALIEN && this.hero.chp > 0) {
-        const delay = target.isInLineOfSight ? 750 : 100
+        const delay = target.isInLineOfSight ? 1000 : 50
         const timeNow = Date.now()
 
         // fire tracer bullets after 100ms
@@ -243,7 +213,7 @@ export default class Game {
     this.objects = this.objects.filter(o => {
       if (killedGameObjects.indexOf(o.id) > -1) {
         // add score of each enemy
-        this.score += o.hp * this.difficulty
+        this.score += (o.hp / 10) * this.difficulty
         return false
       }
 
@@ -288,11 +258,27 @@ export default class Game {
     this.hero.draw(this.ctx)
 
     // draw hud
-    this.hud.draw(this.ctx)
+    this.drawHUD()
+  }
+
+  drawHUD() {
+    const font = (4 * this.h) / 100
+
+    this.ctx.fillStyle = '#ff00ff'
+    this.ctx.fillRect(0, 0, this.w, 50)
+
+    this.ctx.font = `${font}px arial`
+    this.ctx.fillStyle = '#fff'
+    this.ctx.fillText(
+      `Score: ${this.score}   Level: ${this.difficulty}   Health: ${
+        this.hero.chp
+      }   Top Score: ${this.topScore}`,
+      40,
+      30
+    )
   }
 
   drawMenu() {
-    // this.
     // TODO: implement menu drawing
   }
 
