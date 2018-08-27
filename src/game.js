@@ -39,7 +39,7 @@ export default class Game {
     // level difficulty
     this.difficulty = 1
     // current scene
-    this.screen = SCREENS.IN_GAME
+    this.screen = SCREENS.MAIN_MENU
 
     // current scene objects collection
     /** @type {Array<GameObject>} */
@@ -302,6 +302,7 @@ export default class Game {
     this.ctx.fillStyle = 'rgba(1,14,4,0.5)'
     this.ctx.fillRect(0, 0, this.w, 50)
 
+    this.ctx.textAlign = 'left'
     this.ctx.font = `${font}px arial`
     this.ctx.fillStyle = '#fff'
     this.ctx.fillText(
@@ -314,11 +315,47 @@ export default class Game {
   }
 
   drawMenu() {
-    // TODO: implement menu drawing
+    const font = (8 * this.h) / 100
+    const x = this.w / 2
+    const y = (40 * this.h) / 100
+
+    this.ctx.fillStyle = 'rgba(1,14,4,1)'
+    this.ctx.fillRect(0, 0, this.w, this.h)
+
+    this.ctx.textAlign = 'center'
+
+    this.ctx.fillStyle = '#fff'
+    this.ctx.font = `${font}px arial`
+    this.ctx.fillText("Tony Hawk's Gun Smash", x, y)
+
+    this.ctx.fillStyle = 'rgba(255,255,255,0.5)'
+    this.ctx.font = `${font / 2}px arial`
+    this.ctx.fillText('Click anywhere to start', x, y * 1.75)
   }
 
   drawEnd() {
-    // TODO: implement game end drawing
+    const font = (8 * this.h) / 100
+    const x = this.w / 2
+    const y = (40 * this.h) / 100
+
+    this.ctx.fillStyle = 'rgba(1,14,4,1)'
+    this.ctx.fillRect(0, 0, this.w, this.h)
+
+    this.ctx.textAlign = 'center'
+
+    this.ctx.fillStyle = '#fff'
+    this.ctx.font = `${font}px arial`
+
+    if (this.score > this.topScore) {
+      this.ctx.fillText('You Pro!', x, y)
+    } else {
+      this.ctx.fillText('What a Noob!', x, y)
+    }
+
+    this.ctx.fillStyle = 'rgba(255,255,255,0.5)'
+    this.ctx.font = `${font / 2}px arial`
+    this.ctx.fillText('See you next time!', x, y * 1.25)
+    this.ctx.fillText('Click anywhere to restart', x, y * 1.75)
   }
 
   /**
