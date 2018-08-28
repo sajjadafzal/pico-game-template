@@ -39,11 +39,11 @@ export default class Game {
     // level difficulty
     this.difficulty = 1
     // current scene
-    this.screen = SCREENS.MAIN_MENU
+    this.screen = SCREENS.IN_GAME
 
     // current scene objects collection
     /** @type {Array<GameObject>} */
-    this.objects = LEVEL
+    this.objects = Object.create(LEVEL)
 
     // bullets collection
     /** @type {Array<GameObject>} */
@@ -99,7 +99,7 @@ export default class Game {
    */
   updateState() {
     /** @type {Array<GameObject>} */
-    const gameObjects = this.getObjects().concat([this.hero])
+    const gameObjects = [this.hero, ...this.getObjects()]
 
     /** @type {GameObject} */
     let heroClone = Object.create(this.hero)
@@ -131,12 +131,7 @@ export default class Game {
       heroClone.y += HERO_SPEED
     }
 
-    // update bullets
-    this.bullets.forEach(b => {
-      b.x += b.dx
-      b.y += b.dy
-    })
-
+    // collision detection
     const killedGameObjects = []
     for (let i = 0; i < gameObjects.length; i += 1) {
       const target = gameObjects[i]
@@ -151,40 +146,38 @@ export default class Game {
 
       // check bullet collision
       for (let j = 0; j < this.bullets.length; j += 1) {
-        const b = this.bullets[j]
+        const bullet = this.bullets[j]
 
         // disable friendly fire
         if (
-          (b.byHero && target.family === FAMILIES.HERO) ||
-          (!b.byHero && target.family === FAMILIES.ALIEN) ||
-          !b
+          (bullet.byHero && target.family === FAMILIES.HERO) ||
+          (!bullet.byHero && target.family === FAMILIES.ALIEN)
         )
           continue
 
         // check bullet collision
-        if (b.isColliding(target)) {
-          if (b.isReal) {
-            if (target.family === FAMILIES.WALL) {
-              b.src.isInLineOfSight = false
-            } else {
-              target.chp -= b.dmg
+        if (bullet.isColliding(target)) {
+          if (target.family === FAMILIES.WALL) {
+            bullet.src.isInLineOfSight = false
+          } else {
+            bullet.src.isInLineOfSight = true
+          }
 
-              // remove target if health is zero
-              if (target.chp <= 0) {
-                if (target.family === FAMILIES.HERO) {
-                  this.screen = SCREENS.END_GAME
-                } else {
-                  killedGameObjects.push(target.id)
-                }
-              }
+          if (bullet.isReal) {
+            target.chp -= bullet.dmg
 
+            // remove target if health is zero
+            if (target.chp <= 0) {
               if (target.family === FAMILIES.HERO) {
-                b.src.lastFireTime = Date.now()
+                this.screen = SCREENS.END_GAME
+
+                // break both loops
+                j = this.bullets.length
+                i = gameObjects.length
+              } else {
+                killedGameObjects.push(target.id)
               }
             }
-          } else if (target.family === FAMILIES.HERO) {
-            b.src.isInLineOfSight = true
-            b.src.lastFireTime = 0
           }
 
           // remove bullet from collection
@@ -193,7 +186,7 @@ export default class Game {
       }
 
       // add bullets
-      if (target.family === FAMILIES.ALIEN && this.hero.chp > 0) {
+      if (target.family === FAMILIES.ALIEN) {
         const delay = target.isInLineOfSight ? 1000 : 50
         const timeNow = Date.now()
 
@@ -205,6 +198,12 @@ export default class Game {
         }
       }
     }
+
+    // update bullets
+    this.bullets.forEach(b => {
+      b.x += b.dx
+      b.y += b.dy
+    })
 
     // update hero position
     this.hero = heroClone
@@ -225,11 +224,12 @@ export default class Game {
       // increase difficulty
       this.difficulty += 1
       // reset game objects
-      this.screen = SCREENS.IN_GAME
-      this.objects = LEVEL
       this.hero.chp = 100
       this.hero.x = 45
       this.hero.y = 5
+
+      this.objects = Object.create(LEVEL)
+      this.screen = SCREENS.IN_GAME
     }
   }
 
@@ -251,8 +251,8 @@ export default class Game {
     this.addLighting()
 
     // draw bullets
-    this.bullets.forEach(b => {
-      b.draw(this.ctx)
+    this.bullets.forEach(bullet => {
+      bullet.draw(this.ctx)
     })
 
     // sort by zIndex and call draw for each object
@@ -292,7 +292,7 @@ export default class Game {
     gradient.addColorStop(1, 'rgba(1,14,4,1)')
     this.ctx.fillStyle = gradient
 
-    this.ctx.arc(x, y, this.w * 2, 0, 2 * Math.PI)
+    this.ctx.arc(x, y, this.w / 2, 0, 2 * Math.PI)
     this.ctx.fill()
   }
 
@@ -360,21 +360,22 @@ export default class Game {
 
   /**
    * Handle events
-   * @param {Event} e keyboard or mouse event
+   * @param {Event} event keyboard or mouse event
    */
-  handleInput(e) {
-    e.preventDefault()
+  handleInput(event) {
+    event.preventDefault()
 
-    if (e.which === 1) {
+    if (event.which === 1) {
       if (this.screen === SCREENS.MAIN_MENU) {
         // reset game objects
-        this.screen = SCREENS.IN_GAME
-        this.objects = LEVEL
         this.hero.chp = 100
         this.hero.x = 45
         this.hero.y = 5
+
+        this.screen = SCREENS.IN_GAME
+        this.objects = Object.create(LEVEL)
       } else if (this.screen === SCREENS.IN_GAME) {
-        this.addBullet(e)
+        this.addBullet(event)
       } else if (this.screen === SCREENS.END_GAME) {
         this.screen = SCREENS.MAIN_MENU
 
@@ -384,40 +385,39 @@ export default class Game {
           this.score = 0
         }
       }
-    } else if (e.type.indexOf('down') > -1) {
-      this.keyState[e.which] = e
+    } else if (event.type.indexOf('down') > -1) {
+      this.keyState[event.which] = event
     } else {
-      this.keyState[e.which] = false
+      this.keyState[event.which] = false
     }
   }
 
   /**
    * Add bullet to the collection
-   * @param {Event?} e Click Event
-   * @param {GameObject} o Source Game Object
+   * @param {Event?} event Click Event
+   * @param {GameObject} source Source Game Object
    */
-  addBullet(e, o) {
+  addBullet(event, source) {
     let x
     let y
     let x1
     let y1
+
     // check if bullet is fired by hero
-    let byHero = true
+    let byHero = !source
 
     // check if source is click event or computer enemy
-    if (e) {
+    if (event) {
       const coords = this.ctx.canvas.getBoundingClientRect()
       x = this.hero.x
       y = this.hero.y
-      x1 = -this.w / 100 + ((e.clientX - coords.left) * 100) / this.w
-      y1 = -this.h / 100 + ((e.clientY - coords.top) * 100) / this.h
+      x1 = -this.w / 100 + ((event.clientX - coords.left) * 100) / this.w
+      y1 = -this.h / 100 + ((event.clientY - coords.top) * 100) / this.h
     } else {
-      x = o.x
-      y = o.y
+      x = source.x
+      y = source.y
       x1 = this.hero.x
       y1 = this.hero.y
-
-      byHero = false
     }
 
     // find the speed
@@ -440,8 +440,8 @@ export default class Game {
         family: FAMILIES.BULLET,
         x,
         y,
-        src: e ? this.hero : o,
-        isReal: e ? true : o.isInLineOfSight,
+        src: source || this.hero,
+        isReal: byHero || source.isInLineOfSight,
       })
     )
   }
@@ -450,24 +450,15 @@ export default class Game {
    * Returns all shapes as flat array (except text ones)
    */
   getObjects() {
-    return (
-      this.objects
-        // convert nested group into flat array
-        .reduce((prev, cur) => {
-          prev.push(cur)
+    return this.objects.reduce((prev, cur) => {
+      prev.push(cur)
 
-          cur.children.forEach(c => {
-            const copy = Object.create(c)
-            copy.x += cur.x
-            copy.y += cur.y
-            // add parent ref to child
-            // opy.parent = cur
-            prev.push(copy)
-          })
+      cur.children.forEach(c => {
+        prev.push(c)
+      })
 
-          return prev
-        }, [])
-      // .filter(o => o.type !== SHAPE_TYPES.TEXT)
-    )
+      return prev
+    }, [])
+    // .filter(o => o.type !== SHAPE_TYPES.TEXT)
   }
 }

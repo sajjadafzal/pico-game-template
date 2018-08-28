@@ -175,14 +175,14 @@ export default class GameObject {
 
   /**
    * Detect if two objects are on-screen and colliding
-   * @param {GameObject} o Object
+   * @param {GameObject} object Object
    * @returns {Boolean} Returns true if collision is detected
    */
-  isColliding(o) {
-    if (this.x + this.w < o.x) return false
-    if (this.x > o.x + o.w) return false
-    if (this.y + this.h < o.y) return false
-    if (this.y > o.y + o.h) return false
+  isColliding(object) {
+    if (this.x + this.w < object.x) return false
+    if (this.x > object.x + object.w) return false
+    if (this.y + this.h < object.y) return false
+    if (this.y > object.y + object.h) return false
 
     return true
   }
