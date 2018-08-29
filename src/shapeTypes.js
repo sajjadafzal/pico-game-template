@@ -5,7 +5,8 @@ const SHAPE_TYPES = {
   TEXT: 'TEXT',
   RECT: 'RECT',
   CIRCLE: 'CIRCLE',
-  IMAGE: 'IMG',
+  IMAGE: 'IMAGE',
+  SPRITE: 'SPRITE',
 }
 
 export default SHAPE_TYPES

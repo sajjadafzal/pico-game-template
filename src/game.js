@@ -2,6 +2,7 @@ import FAMILIES from './families.js'
 import GameObject from './gameObject.js'
 import LEVEL from './level.js'
 import SHAPE_TYPES from './shapeTypes.js'
+import Sprite from './sprite.js'
 
 const SCREENS = {
   MAIN_MENU: 'MAIN_MENU',
@@ -39,7 +40,7 @@ export default class Game {
     // level difficulty
     this.difficulty = 1
     // current scene
-    this.screen = SCREENS.MAIN_MENU
+    this.screen = SCREENS.IN_GAME
 
     // current scene objects collection
     /** @type {Array<GameObject>} */
@@ -53,6 +54,7 @@ export default class Game {
     /** @type {GameObject} */
     this.hero = new GameObject({
       family: FAMILIES.HERO,
+      sprite: new Sprite(assets.hero),
     })
 
     // track key pressed at any time
@@ -292,8 +294,7 @@ export default class Game {
     gradient.addColorStop(1, 'rgba(1,14,4,1)')
     this.ctx.fillStyle = gradient
 
-    this.ctx.arc(x, y, this.w / 2, 0, 2 * Math.PI)
-    this.ctx.fill()
+    this.ctx.fillRect(0, 0, this.w, this.h)
   }
 
   drawHUD() {
@@ -302,14 +303,14 @@ export default class Game {
     this.ctx.fillStyle = 'rgba(1,14,4,0.5)'
     this.ctx.fillRect(0, 0, this.w, 50)
 
-    this.ctx.textAlign = 'left'
+    this.ctx.textAlign = 'center'
     this.ctx.font = `${font}px arial`
     this.ctx.fillStyle = '#fff'
     this.ctx.fillText(
       `Score: ${this.score}         Level: ${this.difficulty}         Health: ${
         this.hero.chp
       }         Top Score: ${this.topScore}`,
-      25,
+      this.w / 2,
       33
     )
   }
@@ -455,7 +456,10 @@ export default class Game {
       prev.push(cur)
 
       cur.children.forEach(c => {
-        prev.push(c)
+        const clone = Object.create(c)
+        clone.x += cur.x
+        clone.y += cur.y
+        prev.push(clone)
       })
 
       return prev

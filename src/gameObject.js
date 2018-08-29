@@ -1,5 +1,6 @@
 import FAMILIES from './families.js'
 import SHAPE_TYPES from './shapeTypes.js'
+import Sprite from './sprite.js' // eslint-disable-line
 
 /**
  * GameObject
@@ -22,6 +23,7 @@ export default class GameObject {
    * @param {Boolean} options.isReal true if the bullet is real false for tracer bullets
    * @param {Number} options.lastFireTime time recorded when last bullet was fired by this object
    * @param {String} options.name name
+   * @param {String} options.sprite sprite object
    * @param {GameObject} options.src Source of this object
    * @param {String} options.text text
    * @param {String} options.type draw type of object i.e. rect, circle, image
@@ -36,10 +38,15 @@ export default class GameObject {
     this.children = options.children || []
     this.dx = options.dx
     this.dy = options.dy
+    this.family = options.family || FAMILIES.WALL
     this.fill = options.fill || '#000'
     this.h = options.h || 2
+    this.img = options.img
     this.name = options.name
+    /** @type {Sprite} */
+    this.sprite = options.sprite
     this.text = options.text
+    this.type = options.type || SHAPE_TYPES.RECT
     this.w = options.w || 2
     this.x = options.x || 0
     this.y = options.y || 0
@@ -54,9 +61,10 @@ export default class GameObject {
       this.font = options.font || 4
       this.text = options.text
       this.type = SHAPE_TYPES.TEXT
-    } else {
-      this.family = options.family || FAMILIES.WALL
-      this.type = options.type || SHAPE_TYPES.RECT
+    } else if (this.img) {
+      this.type = SHAPE_TYPES.IMAGE
+    } else if (this.sprite) {
+      this.type = SHAPE_TYPES.SPRITE
     }
 
     switch (this.family) {
@@ -65,16 +73,13 @@ export default class GameObject {
         this.y = 5
       // eslint-disable-no-fallthrough
       case FAMILIES.ALIEN:
-        this.w = 6
-        this.h = 6
+        this.w = 8
+        this.h = 8
         this.hp = options.hp || 100
         this.chp = this.hp
         this.isInLineOfSight = false
         this.lastFireTime = 0
         break
-      // case FAMILIES.WALL:
-      //  this.type = options.type || SHAPE_TYPES.RECT
-      // break
       case FAMILIES.BULLET:
         this.byHero = options.byHero
         this.dmg = options.dmg || 10
@@ -104,7 +109,7 @@ export default class GameObject {
     if (this.isReal === false) return
 
     const SCALE_X = ctx.canvas.width / 100
-    const SCALE_Y = (ctx.canvas.height - 50) / 100 // deduct HUD space
+    const SCALE_Y = ctx.canvas.height / 100 // deduct HUD space
 
     // clone this and each children into new array and update coordinates
     /** @type {Array<GameObject>} */
@@ -124,9 +129,6 @@ export default class GameObject {
       o.y *= SCALE_Y
       o.w *= SCALE_X
       o.h *= SCALE_Y
-
-      // move each object 50px down for HUD
-      o.y += 50
 
       ctx.strokeStyle = '#000'
       ctx.fillStyle = o.fill
@@ -159,9 +161,14 @@ export default class GameObject {
           ctx.font = `${o.font}px arial`
           ctx.fillText(o.text, o.x, o.y)
           break
+        case SHAPE_TYPES.SPRITE:
+          o.sprite.draw(ctx, 0, o)
+          break
         case SHAPE_TYPES.IMAGE:
         default:
-          // TODO: implement sprites
+          if (o.img) {
+            ctx.drawImage(o.img, o.x, o.y, o.w, o.h)
+          }
           break
       }
 
