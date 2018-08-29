@@ -33,13 +33,13 @@ export default class Game {
     container.appendChild(this.ctx.canvas)
 
     // top score of current session
-    this.topScore = 0
+    this.topScore = localStorage.topScore || 0
     // score
     this.score = 0
     // level difficulty
     this.difficulty = 1
     // current scene
-    this.screen = SCREENS.IN_GAME
+    this.screen = SCREENS.MAIN_MENU
 
     // current scene objects collection
     /** @type {Array<GameObject>} */
@@ -382,6 +382,7 @@ export default class Game {
         // update top score
         if (this.score > this.topScore) {
           this.topScore = this.score
+          localStorage.topScore = this.topScore
           this.score = 0
         }
       }
