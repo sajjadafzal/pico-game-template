@@ -42,8 +42,9 @@
   "scripts": {
     "build": "npm run clean && npm run build-babel && node create-zip.js",
     "build-babel": "cross-env NODE_ENV=production babel ./src/ --out-dir ./dist/",
-    "build-docs": "cross-env NODE_ENV=docs parcel build ./src/index.js --out-dir ./docs/ --no-cache",
+    "build-docs": "cross-env NODE_ENV=docs parcel build ./src/index.html --out-dir ./docs/ --no-cache",
     "clean": "del-cli ./dist/* -f",
+    "dev": "parcel ./src/index.html --out-dir ./build/",
     "lint": "eslint --fix src/"
   },
   "version": "0.0.1"
