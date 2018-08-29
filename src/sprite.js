@@ -48,20 +48,22 @@ export default class sprite {
     switch (object.direction) {
       case DIRECTIONS.LEFT:
         ctx.rotate(-Math.PI / 2)
-        x = -object.x - ctx.canvas.width
-        y = -object.y - this.ph - 5 - ctx.canvas.height / 2
+        x = -object.y - this.ph - 5 + ctx.canvas.height / 2
+        y = object.x - ctx.canvas.width / 2
         break
       case DIRECTIONS.UP:
         x = object.x - ctx.canvas.width / 2
         y = object.y - ctx.canvas.height / 2
         break
       case DIRECTIONS.RIGHT:
-        ctx.rotate(-Math.PI / 2)
+        ctx.rotate(Math.PI / 2)
+        x = object.y - ctx.canvas.height / 2
+        y = -object.x - this.pw - 5 + ctx.canvas.width / 2
         break
       case DIRECTIONS.DOWN:
       default:
         ctx.rotate(Math.PI)
-        x = -object.x - this.pw - 7 + ctx.canvas.width / 2
+        x = -object.x - this.pw - 5 + ctx.canvas.width / 2
         y = -object.y - this.ph - 5 + ctx.canvas.height / 2
         break
     }

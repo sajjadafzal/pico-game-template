@@ -17,22 +17,19 @@ const SCREENS = {
 export default class Game {
   /**
    *
-   * @param {HTMLElement} container Container for game canvas
-   * @param {Number} width widht of game canvas
-   * @param {Number} height height of game canvas
+   *
    * @param {Array<Object>} assets assets urls to load {name, media}
    * @param {String} assets.name name of asset
    * @param {HTMLImageElement|HTMLAudioElement} assets.media image or audio
    */
-  constructor(container, width, height, assets) {
+  constructor(assets) {
     // game assets
     this.assets = assets
 
     // create canvas
-    this.ctx = document.createElement('canvas').getContext('2d')
-    this.ctx.canvas.width = this.w = width
-    this.ctx.canvas.height = this.h = height
-    container.appendChild(this.ctx.canvas)
+    this.ctx = document.getElementById('canvas').getContext('2d')
+    this.w = this.ctx.canvas.width
+    this.h = this.ctx.canvas.height
 
     // top score of current session
     this.topScore = localStorage.topScore || 0
