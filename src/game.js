@@ -420,6 +420,8 @@ export default class Game {
       y = this.hero.y // - this.hero.h * 0.33
       x1 = -this.w / 100 + ((event.clientX - coords.left) * 100) / this.w
       y1 = -this.h / 100 + ((event.clientY - coords.top) * 100) / this.h
+
+      // TODO: update hero direction
     } else {
       x = source.x
       y = source.y

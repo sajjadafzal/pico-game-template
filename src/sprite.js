@@ -44,7 +44,7 @@ export default class sprite {
 
     ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2)
 
-    // adjust canvas according to object direction
+    // TODO:adjust canvas according to object direction
     switch (object.direction) {
       case DIRECTIONS.LEFT:
         ctx.rotate(-Math.PI / 2)
