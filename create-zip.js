@@ -1,7 +1,7 @@
 const fs = require('fs')
-const zipper = require('zip-local')
+const zipper = require('zip-local') // eslint-disable-line
 
-const fileName = './build/game.zip'
+const fileName = './build/dist.zip'
 
 zipper.sync
   .zip('./dist/')
