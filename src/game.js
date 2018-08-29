@@ -1,3 +1,4 @@
+import DIRECTIONS from './directions.js'
 import FAMILIES from './families.js'
 import GameObject from './gameObject.js'
 import LEVEL from './level.js'
@@ -116,21 +117,25 @@ export default class Game {
     if (this.keyState[37] || this.keyState[65]) {
       // arrow left
       heroClone.x -= HERO_SPEED
+      heroClone.direction = DIRECTIONS.LEFT
     }
 
     if (this.keyState[38] || this.keyState[87]) {
       // arrow up
       heroClone.y -= HERO_SPEED
+      heroClone.direction = DIRECTIONS.UP
     }
 
     if (this.keyState[39] || this.keyState[68]) {
       // arrow right
       heroClone.x += HERO_SPEED
+      heroClone.direction = DIRECTIONS.RIGHT
     }
 
     if (this.keyState[40] || this.keyState[83]) {
       // arrow down
       heroClone.y += HERO_SPEED
+      heroClone.direction = DIRECTIONS.DOWN
     }
 
     // collision detection
@@ -411,8 +416,8 @@ export default class Game {
     // check if source is click event or computer enemy
     if (event) {
       const coords = this.ctx.canvas.getBoundingClientRect()
-      x = this.hero.x
-      y = this.hero.y
+      x = this.hero.x // + this.hero.w * 0.33
+      y = this.hero.y // - this.hero.h * 0.33
       x1 = -this.w / 100 + ((event.clientX - coords.left) * 100) / this.w
       y1 = -this.h / 100 + ((event.clientY - coords.top) * 100) / this.h
     } else {

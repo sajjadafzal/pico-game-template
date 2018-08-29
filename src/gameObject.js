@@ -1,3 +1,4 @@
+import DIRECTIONS from './directions.js'
 import FAMILIES from './families.js'
 import SHAPE_TYPES from './shapeTypes.js'
 import Sprite from './sprite.js' // eslint-disable-line
@@ -69,8 +70,9 @@ export default class GameObject {
 
     switch (this.family) {
       case FAMILIES.HERO:
-        this.x = 45
-        this.y = 5
+        this.x = 15
+        this.y = 50
+        this.direction = DIRECTIONS.LEFT
       // eslint-disable-no-fallthrough
       case FAMILIES.ALIEN:
         this.w = 8
@@ -79,6 +81,7 @@ export default class GameObject {
         this.chp = this.hp
         this.isInLineOfSight = false
         this.lastFireTime = 0
+        this.direction = this.direction || DIRECTIONS.UP
         break
       case FAMILIES.BULLET:
         this.byHero = options.byHero
@@ -162,7 +165,7 @@ export default class GameObject {
           ctx.fillText(o.text, o.x, o.y)
           break
         case SHAPE_TYPES.SPRITE:
-          o.sprite.draw(ctx, 0, o)
+          o.sprite.draw(ctx, o)
           break
         case SHAPE_TYPES.IMAGE:
         default:
