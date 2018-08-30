@@ -5,18 +5,17 @@
   },
   "description": "A minimal template to create HTML5 game using Canvas and JavaScript.",
   "devDependencies": {
-    "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-minify": "^0.4.3",
     "cross-env": "^5.2.0",
     "del-cli": "^1.1.0",
-    "eslint": "^5.3.0",
+    "eslint": "^5.4.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-prettier": "^3.0.1",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "eslint-plugin-node": "^7.0.1",
-    "eslint-plugin-promise": "^3.8.0",
+    "eslint-plugin-promise": "^4.0.0",
     "eslint-plugin-react": "^7.11.1",
     "parcel-bundler": "^1.9.7",
     "zip-local": "^0.3.4"
@@ -40,10 +39,11 @@
     "url": "git+https://github.com/mubaidr/pico-game-template.git"
   },
   "scripts": {
-    "build": "npm run clean && npm run build-babel && node create-zip.js",
-    "build-babel": "cross-env NODE_ENV=production babel ./src/ --out-dir ./dist/",
-    "build-docs": "cross-env NODE_ENV=docs parcel build ./src/index.js --out-dir ./docs/ --no-cache",
-    "clean": "del-cli ./dist/* -f",
+    "build": "npm run clean&& npm run build-dist && npm run build-docs && node create-zip.js",
+    "build-dist": "cross-env NODE_ENV=production parcel build ./src/index.html --out-dir ./dist/ --no-cache --no-source-maps --experimental-scope-hoisting",
+    "build-docs": "cross-env NODE_ENV=docs parcel build ./src/index.html --out-dir ./docs/ --no-cache --no-source-maps --experimental-scope-hoisting",
+    "clean": "del-cli ./dist/* ./docs/* -f",
+    "dev": "parcel ./src/index.html --out-dir ./build/ --open",
     "lint": "eslint --fix src/"
   },
   "version": "0.0.1"

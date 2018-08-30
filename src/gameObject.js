@@ -1,5 +1,7 @@
+import DIRECTIONS from './directions.js'
 import FAMILIES from './families.js'
 import SHAPE_TYPES from './shapeTypes.js'
+import Sprite from './sprite.js' // eslint-disable-line
 
 /**
  * GameObject
@@ -22,6 +24,7 @@ export default class GameObject {
    * @param {Boolean} options.isReal true if the bullet is real false for tracer bullets
    * @param {Number} options.lastFireTime time recorded when last bullet was fired by this object
    * @param {String} options.name name
+   * @param {String} options.sprite sprite object
    * @param {GameObject} options.src Source of this object
    * @param {String} options.text text
    * @param {String} options.type draw type of object i.e. rect, circle, image
@@ -31,24 +34,18 @@ export default class GameObject {
    * @param {Number} options.zIndex index level of object to draw, higher index means object will be on top
    */
   constructor(options) {
-    this.byHero = options.byHero
     // children grouped with this object and drawn relativety to this parent
     /** @type {Array<GameObject>} */
     this.children = options.children || []
-    this.dmg = options.dmg
     this.dx = options.dx
     this.dy = options.dy
     this.family = options.family || FAMILIES.WALL
     this.fill = options.fill || '#000'
-    this.font = options.font || 6
     this.h = options.h || 2
-    this.hp = options.hp
-    this.isInLineOfSight = false
-    this.isReal = options.isReal
-    this.lastFireTime = 0
+    this.img = options.img
     this.name = options.name
-    /** @type {GameObject} */
-    this.src = options.src
+    /** @type {Sprite} */
+    this.sprite = options.sprite
     this.text = options.text
     this.type = options.type || SHAPE_TYPES.RECT
     this.w = options.w || 2
@@ -56,11 +53,54 @@ export default class GameObject {
     this.y = options.y || 0
     this.zIndex = options.zIndex || 1
 
-    // set current hp to full hp
-    this.chp = this.hp
     // assign id
     // eslint-disable-next-line
     this.id = ++GameObject.id
+
+    // set defauilt family as wall (if not text)
+    if (this.text) {
+      this.font = options.font || 4
+      this.text = options.text
+      this.type = SHAPE_TYPES.TEXT
+    } else if (this.img) {
+      this.type = SHAPE_TYPES.IMAGE
+    } else if (this.sprite) {
+      this.type = SHAPE_TYPES.SPRITE
+    }
+
+    switch (this.family) {
+      case FAMILIES.HERO:
+        this.x = 15
+        this.y = 50
+        this.direction = DIRECTIONS.LEFT
+      // eslint-disable-no-fallthrough
+      case FAMILIES.ALIEN:
+        this.w = 8
+        this.h = 8
+        this.hp = options.hp || 100
+        this.chp = this.hp
+        this.isInLineOfSight = false
+        this.lastFireTime = 0
+        this.direction = this.direction || DIRECTIONS.UP
+        break
+      case FAMILIES.BULLET:
+        this.byHero = options.byHero
+        this.dmg = options.dmg || 10
+        this.fill = 'orange'
+        this.w = 1
+        this.h = 1
+        this.type = SHAPE_TYPES.CIRCLE
+        this.isReal = options.isReal
+
+        /** @type {GameObject} */
+        this.src = options.src
+        break
+      case FAMILIES.WALL:
+        this.fill = options.fill || '#fff'
+        break
+      default:
+        break
+    }
   }
 
   /**
@@ -72,7 +112,7 @@ export default class GameObject {
     if (this.isReal === false) return
 
     const SCALE_X = ctx.canvas.width / 100
-    const SCALE_Y = ctx.canvas.height / 100
+    const SCALE_Y = ctx.canvas.height / 100 // deduct HUD space
 
     // clone this and each children into new array and update coordinates
     /** @type {Array<GameObject>} */
@@ -93,6 +133,7 @@ export default class GameObject {
       o.w *= SCALE_X
       o.h *= SCALE_Y
 
+      ctx.strokeStyle = '#000'
       ctx.fillStyle = o.fill
 
       switch (o.type) {
@@ -116,28 +157,27 @@ export default class GameObject {
           break
         case SHAPE_TYPES.TEXT:
           // scale font
-          o.font *= SCALE_Y / 100
+          o.font *= SCALE_Y
           // add font height to text shape to correct x,y
           o.y += o.font
 
           ctx.font = `${o.font}px arial`
           ctx.fillText(o.text, o.x, o.y)
           break
+        case SHAPE_TYPES.SPRITE:
+          o.sprite.draw(ctx, o)
+          break
         case SHAPE_TYPES.IMAGE:
         default:
-          // TODO: implement sprites
+          if (o.img) {
+            ctx.drawImage(o.img, o.x, o.y, o.w, o.h)
+          }
           break
       }
 
       // draw health bar
       if (o.hp) {
-        ctx.fillStyle = '#fff'
-        ctx.beginPath()
-        ctx.rect(o.x, o.y - 6, o.w, 4)
-        ctx.stroke()
-        ctx.fill()
-
-        ctx.fillStyle = 'green'
+        ctx.fillStyle = '#00e635'
         ctx.fillRect(o.x, o.y - 6, (o.chp * o.w) / o.hp, 4)
       }
     })
@@ -145,14 +185,14 @@ export default class GameObject {
 
   /**
    * Detect if two objects are on-screen and colliding
-   * @param {GameObject} o Object
+   * @param {GameObject} object Object
    * @returns {Boolean} Returns true if collision is detected
    */
-  isColliding(o) {
-    if (this.x + this.w < o.x) return false
-    if (this.x > o.x + o.w) return false
-    if (this.y + this.h < o.y) return false
-    if (this.y > o.y + o.h) return false
+  isColliding(object) {
+    if (this.x + this.w < object.x) return false
+    if (this.x > object.x + object.w) return false
+    if (this.y + this.h < object.y) return false
+    if (this.y > object.y + object.h) return false
 
     return true
   }
